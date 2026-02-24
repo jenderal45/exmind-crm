@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Exmind CRM Enterprise - Revenue Engine</title>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+
+<style>
+:root{
+--primary:#0f172a;
+--secondary:#1e293b;
+--accent:#2563eb;
+--success:#16a34a;
+--danger:#dc2626;
+--bg:#f8fafc;
+--white:#ffffff;
+}
+*{box-sizing:border-box;margin:0;padding:0;font-family:'Inter',sans-serif;}
+body{background:var(--bg);}
+
+.hidden{display:none;}
+
+.login{
+display:flex;
+justify-content:center;
+align-items:center;
+height:100vh;
+background:var(--primary);
+}
+.login-box{
+background:white;
+padding:40px;
+border-radius:16px;
+width:320px;
+}
+.login-box h2{margin-bottom:20px;}
+input,select{
+width:100%;
+padding:10px;
+margin-bottom:10px;
+border:1px solid #ddd;
+border-radius:8px;
+}
+button{
+padding:10px;
+border:none;
+border-radius:8px;
+cursor:pointer;
+background:var(--accent);
+color:white;
+}
+
+.app{
+display:flex;
+min-height:100vh;
+}
+
+.sidebar{
+width:240px;
+background:var(--primary);
+color:white;
+padding:20px;
+}
+.sidebar h2{margin-bottom:30px;}
+.sidebar button{
+width:100%;
+margin-bottom:10px;
+background:var(--secondary);
+}
+
+.main{
+flex:1;
+padding:25px;
+}
+
+.card{
+background:white;
+padding:20px;
+border-radius:16px;
+margin-bottom:20px;
+box-shadow:0 4px 12px rgba(0,0,0,0.05);
+}
+
+.stats{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+gap:20px;
+margin-bottom:20px;
+}
+
+.stat-box{
+background:white;
+padding:20px;
+border-radius:16px;
+box-shadow:0 4px 12px rgba(0,0,0,0.05);
+}
+.stat-box h3{font-size:14px;color:gray;}
+.stat-box p{font-size:22px;font-weight:700;margin-top:8px;}
+
+.pipeline{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+gap:15px;
+}
+
+.column{
+background:white;
+padding:15px;
+border-radius:12px;
+}
+
+.deal{
+background:var(--secondary);
+color:white;
+padding:10px;
+border-radius:8px;
+margin-bottom:8px;
+font-size:13px;
+}
+
+@media(max-width:768px){
+.app{flex-direction:column;}
+.sidebar{width:100%;display:flex;overflow:auto;}
+.sidebar h2{display:none;}
+.sidebar button{flex:1;margin-right:5px;}
+}
+</style>
+</head>
+
+<body>
+
+<!-- LOGIN -->
+<div class="login" id="loginPage">
+<div class="login-box">
+<h2>Exmind CRM Login</h2>
+<input type="email" id="email" placeholder="Email">
+<input type="password" id="password" placeholder="Password">
+<button onclick="login()">Login</button>
+</div>
+</div>
+
+<!-- APP -->
+<div class="app hidden" id="app">
+
+<div class="sidebar">
+<h2>Exmind CRM</h2>
+<button onclick="showPage('dashboard')">Dashboard</button>
+<button onclick="showPage('leads')">Leads</button>
+<button onclick="showPage('pipeline')">Pipeline</button>
+<button onclick="showPage('forecast')">Forecast</button>
+<button onclick="exportCSV()">Export CSV</button>
+<button onclick="logout()">Logout</button>
+</div>
+
+<div class="main">
+
+<div id="dashboard">
+<h1>Revenue Dashboard</h1>
+<div class="stats">
+<div class="stat-box">
+<h3>Total Leads</h3>
+<p id="totalLeads">0</p>
+</div>
+<div class="stat-box">
+<h3>Closed Deals</h3>
+<p id="closedDeals">0</p>
+</div>
+<div class="stat-box">
+<h3>Total Revenue</h3>
+<p id="totalRevenue">Rp 0</p>
+</div>
+</div>
+<div class="card">
+<canvas id="revenueChart"></canvas>
+</div>
+</div>
+
+<div id="leads" class="hidden">
+<h1>Lead Management</h1>
+<div class="card">
+<input type="text" id="leadName" placeholder="Nama">
+<input type="text" id="leadCompany" placeholder="Perusahaan">
+<input type="number" id="leadValue" placeholder="Nilai Deal">
+<select id="leadStatus">
+<option>Prospect</option>
+<option>Negotiation</option>
+<option>Closed</option>
+</select>
+<button onclick="addLead()">Tambah Lead</button>
+</div>
+<div class="card">
+<table width="100%">
+<thead>
+<tr><th>Nama</th><th>Company</th><th>Value</th><th>Status</th></tr>
+</thead>
+<tbody id="leadTable"></tbody>
+</table>
+</div>
+</div>
+
+<div id="pipeline" class="hidden">
+<h1>Sales Pipeline</h1>
+<div class="pipeline">
+<div class="column"><h3>Prospect</h3><div id="prospect"></div></div>
+<div class="column"><h3>Negotiation</h3><div id="negotiation"></div></div>
+<div class="column"><h3>Closed</h3><div id="closed"></div></div>
+</div>
+</div>
+
+<div id="forecast" class="hidden">
+<h1>Revenue Forecast</h1>
+<div class="card">
+<p>Projected Revenue (Negotiation + Closed):</p>
+<h2 id="forecastValue">Rp 0</h2>
+</div>
+</div>
+
+</div>
+</div>
+
+<script>
+let users=[
+{email:"admin@exmind.id",password:"admin123",role:"admin"},
+{email:"sales@exmind.id",password:"sales123",role:"sales"}
+];
+
+let currentUser=null;
+let leads=JSON.parse(localStorage.getItem("leadsEnterprise"))||[];
+
+function login(){
+let email=document.getElementById("email").value;
+let password=document.getElementById("password").value;
+let user=users.find(u=>u.email===email&&u.password===password);
+if(user){
+currentUser=user;
+document.getElementById("loginPage").classList.add("hidden");
+document.getElementById("app").classList.remove("hidden");
+render();
+}else{
+alert("Login gagal");
+}
+}
+
+function logout(){
+location.reload();
+}
+
+function showPage(page){
+document.querySelectorAll(".main > div").forEach(div=>div.classList.add("hidden"));
+document.getElementById(page).classList.remove("hidden");
+}
+
+function addLead(){
+let name=leadName.value;
+let company=leadCompany.value;
+let value=parseInt(leadValue.value);
+let status=leadStatus.value;
+if(!name||!company||!value)return alert("Lengkapi data");
+leads.push({name,company,value,status});
+localStorage.setItem("leadsEnterprise",JSON.stringify(leads));
+render();
+leadName.value="";
+leadCompany.value="";
+leadValue.value="";
+}
+
+function render(){
+let totalRevenue=0;
+let closedCount=0;
+let forecast=0;
+
+leadTable.innerHTML="";
+prospect.innerHTML="";
+negotiation.innerHTML="";
+closed.innerHTML="";
+
+leads.forEach(l=>{
+if(l.status==="Closed"){
+totalRevenue+=l.value;
+closedCount++;
+}
+if(l.status==="Closed"||l.status==="Negotiation"){
+forecast+=l.value;
+}
+
+leadTable.innerHTML+=`<tr><td>${l.name}</td><td>${l.company}</td><td>Rp ${l.value.toLocaleString()}</td><td>${l.status}</td></tr>`;
+let card=`<div class="deal">${l.name}<br>Rp ${l.value.toLocaleString()}</div>`;
+if(l.status==="Prospect")prospect.innerHTML+=card;
+if(l.status==="Negotiation")negotiation.innerHTML+=card;
+if(l.status==="Closed")closed.innerHTML+=card;
+});
+
+totalLeads.innerText=leads.length;
+closedDeals.innerText=closedCount;
+totalRevenue.innerText="Rp "+totalRevenue.toLocaleString();
+forecastValue.innerText="Rp "+forecast.toLocaleString();
+
+renderChart(totalRevenue,forecast);
+}
+
+function renderChart(revenue,forecast){
+new Chart(document.getElementById("revenueChart"),{
+type:"bar",
+data:{
+labels:["Closed Revenue","Forecast Revenue"],
+datasets:[{
+label:"Revenue",
+data:[revenue,forecast]
+}]
+}
+});
+}
+
+function exportCSV(){
+let csv="Nama,Company,Value,Status\n";
+leads.forEach(l=>{
+csv+=`${l.name},${l.company},${l.value},${l.status}\n`;
+});
+let blob=new Blob([csv],{type:"text/csv"});
+let a=document.createElement("a");
+a.href=URL.createObjectURL(blob);
+a.download="exmind-crm-data.csv";
+a.click();
+}
+</script>
+
+</body>
+</html>
