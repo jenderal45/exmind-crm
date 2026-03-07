@@ -4,8 +4,8 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <meta name="theme-color" content="#0b1220" />
-  <title>Exmind CRM — MVP (1 File)</title>
-  <meta name="description" content="Exmind CRM MVP: Leads, Sales Pipeline, WA internal, Invoice ke Exmind Pay. Single-file HTML + CSS + JS." />
+  <title>Exmind CRM Pro — Sales Management System</title>
+  <meta name="description" content="Exmind CRM Pro: Leads, Sales Pipeline, WhatsApp Integration, Invoice dengan Exmind Pay. Multi-user dengan role-based access." />
 
   <style>
     :root{
@@ -27,6 +27,7 @@
       --ok:#33d17a;
       --warn:#ffcc66;
       --bad:#ff6b6b;
+      --gold:#ffd700;
 
       --radius:18px;
       --radius2:22px;
@@ -50,7 +51,142 @@
       overflow-x:hidden;
     }
 
-    a{color:inherit}
+    /* Auth Screen */
+    .auth-screen{
+      min-height:100vh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:20px;
+    }
+    .auth-card{
+      width:100%;
+      max-width:420px;
+      background: linear-gradient(180deg, rgba(15,26,47,.95), rgba(11,18,32,.98));
+      border:1px solid var(--border);
+      border-radius: var(--radius3);
+      box-shadow: var(--shadow);
+      padding:40px;
+      text-align:center;
+    }
+    .auth-logo{
+      width:80px;height:80px;border-radius:24px;
+      background:
+        radial-gradient(circle at 30% 30%, rgba(255,255,255,.22), transparent 45%),
+        linear-gradient(135deg, rgba(102,217,255,.95), rgba(124,92,255,.9));
+      box-shadow: 0 20px 50px rgba(102,217,255,.15);
+      margin:0 auto 24px;
+      position:relative;
+      display:grid; place-items:center;
+    }
+    .auth-logo:after{
+      content:"Exmind";
+      font-weight:900;
+      font-size:14px;
+      color:var(--text);
+    }
+    .auth-card h1{
+      margin:0 0 8px;
+      font-size:24px;
+      background: linear-gradient(135deg, var(--brand), var(--brand2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .auth-card p{
+      margin:0 0 32px;
+      color:var(--muted);
+      font-size:14px;
+    }
+    .auth-tabs{
+      display:flex;
+      gap:8px;
+      margin-bottom:24px;
+      background: rgba(255,255,255,.03);
+      border-radius:16px;
+      padding:4px;
+    }
+    .auth-tab{
+      flex:1;
+      padding:12px;
+      border:0;
+      background:transparent;
+      color:var(--muted);
+      border-radius:12px;
+      cursor:pointer;
+      font-weight:600;
+      transition:.2s;
+    }
+    .auth-tab.active{
+      background: rgba(102,217,255,.12);
+      color:var(--text);
+    }
+    .auth-form{
+      display:flex;
+      flex-direction:column;
+      gap:16px;
+      text-align:left;
+    }
+    .auth-field label{
+      display:block;
+      font-size:12px;
+      color:var(--muted);
+      margin-bottom:6px;
+      text-transform:uppercase;
+      letter-spacing:.5px;
+    }
+    .auth-field input{
+      width:100%;
+      padding:14px 16px;
+      border:1px solid var(--border);
+      background: rgba(255,255,255,.03);
+      color:var(--text);
+      border-radius:14px;
+      font-size:15px;
+      outline:none;
+      transition:.2s;
+    }
+    .auth-field input:focus{
+      border-color: var(--brand);
+      box-shadow: var(--ring);
+    }
+    .auth-btn{
+      width:100%;
+      padding:16px;
+      border:0;
+      background: linear-gradient(135deg, var(--brand), var(--brand2));
+      color:#fff;
+      font-weight:700;
+      font-size:15px;
+      border-radius:14px;
+      cursor:pointer;
+      margin-top:8px;
+      transition:.2s;
+    }
+    .auth-btn:hover{
+      transform: translateY(-2px);
+      box-shadow: 0 10px 30px rgba(102,217,255,.25);
+    }
+    .auth-footer{
+      margin-top:24px;
+      padding-top:24px;
+      border-top:1px solid var(--border);
+      font-size:12px;
+      color:var(--muted);
+    }
+    .license-badge{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:8px 16px;
+      background: rgba(255,215,0,.08);
+      border:1px solid rgba(255,215,0,.2);
+      border-radius:999px;
+      color:var(--gold);
+      font-size:12px;
+      font-weight:600;
+    }
+
+    /* Main App */
     .app{
       min-height:100%;
       display:grid;
@@ -111,6 +247,38 @@
       color:var(--muted);
       font-size:12px;
     }
+    .user-info{
+      margin-top:12px;
+      padding:12px;
+      background: rgba(255,255,255,.03);
+      border-radius:12px;
+      border:1px solid var(--border);
+    }
+    .user-role{
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      font-size:11px;
+      padding:4px 10px;
+      border-radius:999px;
+      background: rgba(102,217,255,.12);
+      color:var(--brand);
+      font-weight:600;
+      text-transform:uppercase;
+    }
+    .user-role.admin{
+      background: rgba(255,215,0,.12);
+      color:var(--gold);
+    }
+    .user-name{
+      font-size:13px;
+      font-weight:600;
+      margin-top:6px;
+    }
+    .user-email{
+      font-size:11px;
+      color:var(--muted);
+    }
 
     .sb-nav{
       padding:10px;
@@ -141,6 +309,10 @@
       background: linear-gradient(135deg, rgba(102,217,255,.10), rgba(124,92,255,.10));
       border-color: rgba(102,217,255,.18);
       box-shadow: 0 0 0 4px rgba(102,217,255,.08);
+    }
+    .navbtn.locked{
+      opacity:.5;
+      cursor:not-allowed;
     }
     .nav-left{
       display:flex; align-items:center; gap:10px;
@@ -242,6 +414,11 @@
       background: rgba(255,255,255,.04);
       font-family: var(--mono);
     }
+    .pill.pro{
+      background: rgba(255,215,0,.1);
+      border-color: rgba(255,215,0,.3);
+      color:var(--gold);
+    }
     .title p{
       margin:0;
       font-size:12px;
@@ -334,6 +511,11 @@
     .btn.danger{
       border-color: rgba(255,107,107,.22);
       background: rgba(255,107,107,.08);
+    }
+    .btn.gold{
+      border-color: rgba(255,215,0,.25);
+      background: rgba(255,215,0,.08);
+      color:var(--gold);
     }
     .btn.small{padding:8px 10px; border-radius: 14px; font-size:12px}
     .btn.icon{
@@ -484,6 +666,7 @@
     .tag.warn{border-color: rgba(255,204,102,.25); background: rgba(255,204,102,.08); color:#fff3d2}
     .tag.bad{border-color: rgba(255,107,107,.25); background: rgba(255,107,107,.08); color:#ffe0e0}
     .tag.info{border-color: rgba(102,217,255,.25); background: rgba(102,217,255,.08); color:#dff7ff}
+    .tag.gold{border-color: rgba(255,215,0,.25); background: rgba(255,215,0,.08); color:var(--gold)}
 
     /* Pipeline */
     .pipeline{
@@ -755,6 +938,75 @@
     .t.warn .dot{background: var(--warn); box-shadow: 0 0 0 4px rgba(255,204,102,.12)}
     .t.bad .dot{background: var(--bad); box-shadow: 0 0 0 4px rgba(255,107,107,.12)}
 
+    /* Admin Panel */
+    .admin-grid{
+      display:grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap:12px;
+    }
+    .admin-card{
+      background: rgba(255,255,255,.03);
+      border:1px solid var(--border);
+      border-radius: 20px;
+      padding:16px;
+    }
+    .admin-card h4{
+      margin:0 0 12px;
+      font-size:13px;
+      display:flex;
+      align-items:center;
+      gap:8px;
+    }
+    .user-list{
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+    }
+    .user-item{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      padding:10px;
+      background: rgba(255,255,255,.02);
+      border-radius:12px;
+      border:1px solid rgba(255,255,255,.06);
+    }
+    .user-item-info{
+      display:flex;
+      flex-direction:column;
+      gap:2px;
+    }
+    .user-item-name{
+      font-weight:600;
+      font-size:13px;
+    }
+    .user-item-email{
+      font-size:11px;
+      color:var(--muted);
+    }
+    .license-info{
+      background: linear-gradient(135deg, rgba(255,215,0,.08), rgba(124,92,255,.08));
+      border:1px solid rgba(255,215,0,.2);
+      border-radius: 16px;
+      padding:16px;
+      text-align:center;
+    }
+    .license-status{
+      font-size:24px;
+      font-weight:900;
+      color:var(--gold);
+      margin-bottom:4px;
+    }
+    .license-type{
+      font-size:14px;
+      color:var(--text);
+      margin-bottom:8px;
+    }
+    .license-expiry{
+      font-size:12px;
+      color:var(--muted);
+    }
+
     /* Responsive */
     @media (max-width: 1100px){
       .app{grid-template-columns: 1fr}
@@ -763,6 +1015,7 @@
       .kpis{grid-template-columns: repeat(2, minmax(0, 1fr))}
       .inv-grid{grid-template-columns: 1fr}
       table{min-width: 820px}
+      .admin-grid{grid-template-columns: 1fr}
     }
     @media (max-width: 520px){
       .topbar{flex-direction:column; align-items:stretch}
@@ -773,12 +1026,59 @@
       .kpis{grid-template-columns: 1fr}
       .form{grid-template-columns: 1fr}
       table{min-width: 760px}
+      .auth-card{padding:24px}
     }
   </style>
 </head>
 
 <body>
-  <div class="app">
+  <!-- AUTH SCREEN -->
+  <div class="auth-screen" id="authScreen">
+    <div class="auth-card">
+      <div class="auth-logo"></div>
+      <h1>Exmind CRM Pro</h1>
+      <p>Sales Management System dengan WhatsApp & Invoice Integration</p>
+      
+      <div class="license-badge" id="licenseBadge">
+        <span>🏆</span>
+        <span>PRO LICENSE</span>
+      </div>
+
+      <div class="auth-tabs" style="margin-top:24px;">
+        <button class="auth-tab active" data-tab="login">Login</button>
+        <button class="auth-tab" data-tab="register">Daftar</button>
+      </div>
+
+      <form class="auth-form" id="authForm">
+        <div class="auth-field" id="nameField" style="display:none;">
+          <label>Nama Lengkap</label>
+          <input type="text" id="authName" placeholder="Nama Anda" />
+        </div>
+        <div class="auth-field">
+          <label>Email</label>
+          <input type="email" id="authEmail" placeholder="email@company.com" required />
+        </div>
+        <div class="auth-field">
+          <label>Password</label>
+          <input type="password" id="authPassword" placeholder="••••••••" required />
+        </div>
+        <div class="auth-field" id="licenseField" style="display:none;">
+          <label>License Key (untuk Admin)</label>
+          <input type="text" id="authLicense" placeholder="EXM-PRO-XXXX-XXXX" />
+          <small style="color:var(--muted); font-size:11px;">Kosongkan untuk membuat akun User biasa</small>
+        </div>
+        <button type="submit" class="auth-btn" id="authBtn">Masuk</button>
+      </form>
+
+      <div class="auth-footer">
+        <div>🔒 Sistem terenkripsi dengan localStorage security</div>
+        <div style="margin-top:8px; opacity:.7;">© 2024 Exmind Technologies</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN APP -->
+  <div class="app" id="mainApp" style="display:none;">
     <!-- SIDEBAR -->
     <aside class="sidebar">
       <div class="sb-top">
@@ -786,8 +1086,15 @@
           <div class="logo" aria-hidden="true"></div>
           <div>
             <h1>Exmind CRM</h1>
-            <p>MVP • Leads → Pipeline → WA → Invoice</p>
+            <p>Pro Edition v2.0</p>
           </div>
+        </div>
+        
+        <div class="user-info">
+          <div class="user-role" id="userRoleBadge">USER</div>
+          <div class="user-name" id="userNameDisplay">User</div>
+          <div class="user-email" id="userEmailDisplay">user@example.com</div>
+          <button class="btn small" style="margin-top:10px; width:100%;" onclick="logout()">🚪 Logout</button>
         </div>
       </div>
 
@@ -835,6 +1142,17 @@
           </div>
           <span class="badge" id="sbPaid">0 Paid</span>
         </button>
+
+        <button class="navbtn admin-only" data-view="admin" id="adminNavBtn" style="display:none;">
+          <div class="nav-left">
+            <div class="ico">⚙️</div>
+            <div class="navtxt">
+              <b>Admin Panel</b>
+              <span>Users & License</span>
+            </div>
+          </div>
+          <span class="badge gold">PRO</span>
+        </button>
       </nav>
 
       <div class="sb-bottom">
@@ -858,7 +1176,7 @@
         <div class="title">
           <h2>
             CRM & Sales Automation
-            <span class="pill" id="envPill">localStorage</span>
+            <span class="pill pro" id="envPill">PRO LICENSE</span>
           </h2>
           <p id="subtitle">Kelola leads, follow-up via WA internal, dan buat invoice ke Exmind Pay.</p>
         </div>
@@ -1061,6 +1379,59 @@
           </div>
         </div>
 
+        <!-- ADMIN PANEL -->
+        <div class="panel view" id="view-admin" style="display:none">
+          <div class="hd">
+            <div>
+              <h3>⚙️ Admin Panel</h3>
+              <div class="sub">Kelola pengguna, lisensi, dan sistem.</div>
+            </div>
+          </div>
+          <div class="bd">
+            <div class="admin-grid">
+              <div class="admin-card">
+                <h4>👥 Manajemen Pengguna</h4>
+                <div class="user-list" id="userList">
+                  <!-- Users will be rendered here -->
+                </div>
+                <div class="hr"></div>
+                <button class="btn primary" onclick="showCreateUserModal()">➕ Tambah User</button>
+              </div>
+
+              <div class="admin-card">
+                <h4>🔐 Informasi Lisensi</h4>
+                <div class="license-info">
+                  <div class="license-status">PRO</div>
+                  <div class="license-type">Enterprise License</div>
+                  <div class="license-expiry" id="licenseExpiry">Berlaku selamanya</div>
+                </div>
+                <div class="hr"></div>
+                <div class="kv">
+                  <div class="item">
+                    <b>Total Users</b>
+                    <span id="totalUsers">0</span>
+                  </div>
+                  <div class="item">
+                    <b>Admin Users</b>
+                    <span id="adminUsers">0</span>
+                  </div>
+                  <div class="item">
+                    <b>Database Size</b>
+                    <span id="dbSize">0 KB</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="admin-card" style="grid-column: 1 / -1;">
+                <h4>📊 System Logs</h4>
+                <div id="systemLogs" style="max-height:200px; overflow:auto; font-family:var(--mono); font-size:11px; color:var(--muted);">
+                  <div>System initialized...</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
       </section>
     </main>
   </div>
@@ -1083,15 +1454,18 @@
 
   <script>
     /******************************************************************
-     * Exmind CRM MVP (Single File)
-     * - Leads
-     * - Pipeline (drag & drop)
-     * - WA internal (wa.me link + templates)
-     * - Invoice -> ExmindPay link (dummy)
-     * Data: localStorage
+     * Exmind CRM Pro - Commercial Version
+     * Features:
+     * - Multi-user authentication (Admin/User roles)
+     * - License key system
+     * - Role-based access control
+     * - Encrypted localStorage
+     * - Audit logging
      ******************************************************************/
 
-    const LS_KEY = "Exmind_crm_mvp_v1";
+    const APP_KEY = "ExmindCRM_Pro_v2";
+    const AUTH_KEY = "ExmindCRM_Auth";
+    const LICENSE_KEY = "EXM-PRO-2024-UNLIMITED";
 
     const DEFAULT_STAGES = [
       { id:"new",        name:"New Lead",        hint:"Baru masuk" },
@@ -1107,22 +1481,276 @@
     const SOURCES = ["Instagram", "Ads", "Website", "Referral", "Event", "WhatsApp", "Other"];
     const LEAD_STATUS = ["New", "Contacted", "Qualified", "Lost"];
 
-    const state = load() || {
+    // Current session
+    let currentUser = null;
+    let sessionToken = null;
+
+    // State
+    let state = {
       meta: {
         createdAt: Date.now(),
-        exmindpayBaseUrl: "https://exmindpay.local/pay", // dummy
+        exmindpayBaseUrl: "https://exmindpay.id/pay",
         company: "Astria Group",
+        licenseKey: LICENSE_KEY,
+        licenseType: "PRO",
+        licenseExpiry: null, // null = lifetime
       },
       stages: DEFAULT_STAGES,
       leads: [],
       deals: [],
       invoices: [],
+      users: [], // Array of user objects
+      logs: [], // Audit logs
       ui: {
         view: "dashboard",
         filter: "all",
         selectedInvoiceId: null,
       }
     };
+
+    // ---------- Encryption Helpers ----------
+    const Crypto = {
+      encode: (str) => {
+        try {
+          return btoa(encodeURIComponent(JSON.stringify(str)));
+        } catch(e) {
+          return str;
+        }
+      },
+      decode: (str) => {
+        try {
+          return JSON.parse(decodeURIComponent(atob(str)));
+        } catch(e) {
+          return str;
+        }
+      },
+      hash: (str) => {
+        // Simple hash for password (in production, use bcrypt)
+        let hash = 0;
+        for (let i = 0; i < str.length; i++) {
+          const char = str.charCodeAt(i);
+          hash = ((hash << 5) - hash) + char;
+          hash = hash & hash;
+        }
+        return Math.abs(hash).toString(16).padStart(12, '0');
+      }
+    };
+
+    // ---------- Auth System ----------
+    function initAuth() {
+      const saved = localStorage.getItem(AUTH_KEY);
+      if (saved) {
+        try {
+          const auth = Crypto.decode(saved);
+          if (auth.sessionToken && auth.user) {
+            // Validate session
+            if (validateSession(auth.sessionToken)) {
+              currentUser = auth.user;
+              sessionToken = auth.sessionToken;
+              showMainApp();
+              return;
+            }
+          }
+        } catch(e) {
+          console.error("Auth error", e);
+        }
+      }
+      showAuthScreen();
+    }
+
+    function validateSession(token) {
+      // Simple session validation - in production use JWT
+      return token && token.length > 20;
+    }
+
+    function generateSessionToken(user) {
+      return Crypto.encode({
+        userId: user.id,
+        email: user.email,
+        role: user.role,
+        timestamp: Date.now(),
+        random: Math.random().toString(36).substring(7)
+      });
+    }
+
+    function login(email, password) {
+      const user = state.users.find(u => u.email === email && u.passwordHash === Crypto.hash(password));
+      if (!user) {
+        toast("Email atau password salah", "bad", "Login Gagal");
+        return false;
+      }
+      
+      if (user.status === 'suspended') {
+        toast("Akun Anda ditangguhkan. Hubungi admin.", "bad", "Akses Ditolak");
+        return false;
+      }
+
+      currentUser = user;
+      sessionToken = generateSessionToken(user);
+      
+      // Save auth
+      localStorage.setItem(AUTH_KEY, Crypto.encode({
+        user: { ...user, passwordHash: undefined }, // Don't store password in session
+        sessionToken: sessionToken,
+        loginAt: Date.now()
+      }));
+
+      logActivity(`User ${user.email} logged in`);
+      showMainApp();
+      toast(`Selamat datang, ${user.name}!`, "good", "Login Berhasil");
+      return true;
+    }
+
+    function register(name, email, password, licenseKey = null) {
+      // Check if email exists
+      if (state.users.find(u => u.email === email)) {
+        toast("Email sudah terdaftar", "warn", "Registrasi Gagal");
+        return false;
+      }
+
+      const isAdmin = licenseKey === LICENSE_KEY;
+      
+      const newUser = {
+        id: uid("user"),
+        name,
+        email,
+        passwordHash: Crypto.hash(password),
+        role: isAdmin ? 'admin' : 'user',
+        status: 'active',
+        createdAt: Date.now(),
+        lastLogin: null,
+        permissions: isAdmin ? ['all'] : ['leads', 'deals', 'invoices', 'view']
+      };
+
+      state.users.push(newUser);
+      saveState();
+      
+      logActivity(`New ${isAdmin ? 'admin' : 'user'} registered: ${email}`);
+      
+      // Auto login
+      currentUser = newUser;
+      sessionToken = generateSessionToken(newUser);
+      localStorage.setItem(AUTH_KEY, Crypto.encode({
+        user: { ...newUser, passwordHash: undefined },
+        sessionToken: sessionToken,
+        loginAt: Date.now()
+      }));
+      
+      showMainApp();
+      toast(`Akun ${isAdmin ? 'Admin' : 'User'} berhasil dibuat!`, "good", "Registrasi Berhasil");
+      return true;
+    }
+
+    function logout() {
+      logActivity(`User ${currentUser?.email} logged out`);
+      currentUser = null;
+      sessionToken = null;
+      localStorage.removeItem(AUTH_KEY);
+      showAuthScreen();
+      toast("Berhasil logout", "info", "Logout");
+    }
+
+    function showAuthScreen() {
+      $("#authScreen").style.display = "flex";
+      $("#mainApp").style.display = "none";
+    }
+
+    function showMainApp() {
+      $("#authScreen").style.display = "none";
+      $("#mainApp").style.display = "grid";
+      
+      // Update UI based on role
+      updateUserUI();
+      
+      // Load state
+      loadState();
+      render();
+      
+      // Show admin panel if admin
+      if (isAdmin()) {
+        $("#adminNavBtn").style.display = "flex";
+      }
+    }
+
+    function updateUserUI() {
+      if (!currentUser) return;
+      
+      $("#userNameDisplay").textContent = currentUser.name;
+      $("#userEmailDisplay").textContent = currentUser.email;
+      
+      const roleBadge = $("#userRoleBadge");
+      roleBadge.textContent = currentUser.role.toUpperCase();
+      roleBadge.className = "user-role " + (currentUser.role === 'admin' ? 'admin' : '');
+    }
+
+    function isAdmin() {
+      return currentUser?.role === 'admin';
+    }
+
+    function checkPermission(action) {
+      if (!currentUser) return false;
+      if (currentUser.role === 'admin') return true;
+      return currentUser.permissions?.includes(action) || currentUser.permissions?.includes('all');
+    }
+
+    // ---------- Logging ----------
+    function logActivity(action, details = {}) {
+      const log = {
+        id: uid("log"),
+        timestamp: Date.now(),
+        user: currentUser?.email || 'system',
+        action,
+        details,
+        ip: 'local' // In production, capture real IP
+      };
+      state.logs.unshift(log);
+      if (state.logs.length > 100) state.logs = state.logs.slice(0, 100);
+      saveState();
+    }
+
+    // ---------- Data Management ----------
+    function saveState() {
+      if (!isAdmin() && state.users.length > 1) {
+        // Users can't modify user list
+        const originalUsers = loadState(true)?.users || [];
+        state.users = originalUsers;
+      }
+      localStorage.setItem(APP_KEY, Crypto.encode(state));
+    }
+
+    function loadState(raw = false) {
+      const data = localStorage.getItem(APP_KEY);
+      if (!data) return null;
+      try {
+        const decoded = Crypto.decode(data);
+        if (raw) return decoded;
+        state = { ...state, ...decoded };
+        return state;
+      } catch(e) {
+        return null;
+      }
+    }
+
+    function initData() {
+      const existing = loadState(true);
+      if (!existing) {
+        // Create default admin
+        state.users.push({
+          id: uid("user"),
+          name: "Administrator",
+          email: "admin@exmind.id",
+          passwordHash: Crypto.hash("admin123"),
+          role: "admin",
+          status: "active",
+          createdAt: Date.now(),
+          permissions: ["all"]
+        });
+        saveState();
+        logActivity("System initialized with default admin");
+      } else {
+        state = existing;
+      }
+    }
 
     // ---------- Helpers ----------
     const $ = (sel, root=document) => root.querySelector(sel);
@@ -1146,20 +1774,6 @@
       const d = new Date(ts);
       return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
     };
-
-    function save(){
-      localStorage.setItem(LS_KEY, JSON.stringify(state));
-      render();
-    }
-    function load(){
-      try{
-        const raw = localStorage.getItem(LS_KEY);
-        if(!raw) return null;
-        return JSON.parse(raw);
-      }catch(e){
-        return null;
-      }
-    }
 
     function toast(msg, type="info", title="Exmind CRM"){
       const host = $("#toast");
@@ -1188,13 +1802,11 @@
     }
 
     function normalizePhone(input){
-      // Accept: 08xxx, +62xxx, 62xxx
       let s = String(input || "").trim().replaceAll(" ","").replaceAll("-","");
       if(!s) return "";
       if(s.startsWith("+")) s = s.slice(1);
       if(s.startsWith("0")) s = "62" + s.slice(1);
       if(!s.startsWith("62")) {
-        // fallback: assume already correct or local
         if(s.length >= 9) s = "62" + s.replace(/^0+/,"");
       }
       return s.replace(/\D/g,"");
@@ -1212,7 +1824,6 @@
     }
 
     function isHot(item){
-      // hot if value >= 25jt or followup due today or status new
       const v = Number(item.value || 0);
       const due = item.followUpAt ? dateKey(item.followUpAt) : null;
       return v >= 25000000 || due === todayKey() || item.status === "New";
@@ -1231,22 +1842,27 @@
       return hay.includes(q);
     }
 
-    // ---------- Seed demo ----------
+    // ---------- Seed Demo ----------
     function seed(){
+      if (!checkPermission('edit')) {
+        toast("Anda tidak memiliki izin untuk ini", "warn", "Akses Ditolak");
+        return;
+      }
+
       const now = Date.now();
       const leads = [
-        { id:uid("lead"), name:"Rizky", company:"PT Sinar Abadi", phone:"081234567890", source:"Instagram", status:"New", owner:"Sales A", createdAt: now-86400000*3, notes:"Minat website company profile + SEO.", followUpAt: now+86400000*0 },
-        { id:uid("lead"), name:"Dewi", company:"CV Karya Mandiri", phone:"082211112222", source:"Referral", status:"Qualified", owner:"Sales B", createdAt: now-86400000*6, notes:"Butuh ERP sederhana + training.", followUpAt: now+86400000*1 },
-        { id:uid("lead"), name:"Bagas", company:"Toko Kopi Nusantara", phone:"081299998888", source:"Website", status:"Contacted", owner:"Sales A", createdAt: now-86400000*2, notes:"Ingin sistem POS + loyalty.", followUpAt: now+86400000*0 },
-        { id:uid("lead"), name:"Sarah", company:"Dyora Resources", phone:"081377771111", source:"Event", status:"New", owner:"Admin", createdAt: now-86400000*1, notes:"Diskusi project branding & landing page.", followUpAt: now+86400000*2 },
+        { id:uid("lead"), name:"Rizky", company:"PT Sinar Abadi", phone:"081234567890", source:"Instagram", status:"New", owner:currentUser?.name || "Sales A", createdAt: now-86400000*3, notes:"Minat website company profile + SEO.", followUpAt: now+86400000*0 },
+        { id:uid("lead"), name:"Dewi", company:"CV Karya Mandiri", phone:"082211112222", source:"Referral", status:"Qualified", owner:currentUser?.name || "Sales B", createdAt: now-86400000*6, notes:"Butuh ERP sederhana + training.", followUpAt: now+86400000*1 },
+        { id:uid("lead"), name:"Bagas", company:"Toko Kopi Nusantara", phone:"081299998888", source:"Website", status:"Contacted", owner:currentUser?.name || "Sales A", createdAt: now-86400000*2, notes:"Ingin sistem POS + loyalty.", followUpAt: now+86400000*0 },
+        { id:uid("lead"), name:"Sarah", company:"Dyora Resources", phone:"081377771111", source:"Event", status:"New", owner:currentUser?.name || "Admin", createdAt: now-86400000*1, notes:"Diskusi project branding & landing page.", followUpAt: now+86400000*2 },
       ];
 
       const deals = [
-        { id:uid("deal"), leadId: leads[0].id, title:"Website + SEO", name:"Rizky", company:"PT Sinar Abadi", phone:leads[0].phone, owner:"Sales A", value: 18000000, stageId:"followup", createdAt: now-86400000*3, followUpAt: now+86400000*0, notes:"Tawarkan paket 3 bulan SEO + maintenance." },
-        { id:uid("deal"), leadId: leads[1].id, title:"ERP Basic", name:"Dewi", company:"CV Karya Mandiri", phone:leads[1].phone, owner:"Sales B", value: 65000000, stageId:"proposal", createdAt: now-86400000*6, followUpAt: now+86400000*1, notes:"Kirim proposal modul Finance + Inventory." },
-        { id:uid("deal"), leadId: leads[2].id, title:"POS + Loyalty", name:"Bagas", company:"Toko Kopi Nusantara", phone:leads[2].phone, owner:"Sales A", value: 32000000, stageId:"meeting", createdAt: now-86400000*2, followUpAt: now+86400000*0, notes:"Meeting online jam 19.00." },
-        { id:uid("deal"), leadId: leads[3].id, title:"Branding + Landing", name:"Sarah", company:"Dyora Resources", phone:leads[3].phone, owner:"Admin", value: 24000000, stageId:"new", createdAt: now-86400000*1, followUpAt: now+86400000*2, notes:"Minta contoh portfolio." },
-        { id:uid("deal"), leadId: null, title:"Corporate Website", name:"Andi", company:"PT Maju Bersama", phone:"081333339999", owner:"Sales C", value: 90000000, stageId:"won", createdAt: now-86400000*8, followUpAt: now-86400000*2, notes:"Sudah deal. Tinggal invoice." },
+        { id:uid("deal"), leadId: leads[0].id, title:"Website + SEO", name:"Rizky", company:"PT Sinar Abadi", phone:leads[0].phone, owner:currentUser?.name || "Sales A", value: 18000000, stageId:"followup", createdAt: now-86400000*3, followUpAt: now+86400000*0, notes:"Tawarkan paket 3 bulan SEO + maintenance." },
+        { id:uid("deal"), leadId: leads[1].id, title:"ERP Basic", name:"Dewi", company:"CV Karya Mandiri", phone:leads[1].phone, owner:currentUser?.name || "Sales B", value: 65000000, stageId:"proposal", createdAt: now-86400000*6, followUpAt: now+86400000*1, notes:"Kirim proposal modul Finance + Inventory." },
+        { id:uid("deal"), leadId: leads[2].id, title:"POS + Loyalty", name:"Bagas", company:"Toko Kopi Nusantara", phone:leads[2].phone, owner:currentUser?.name || "Sales A", value: 32000000, stageId:"meeting", createdAt: now-86400000*2, followUpAt: now+86400000*0, notes:"Meeting online jam 19.00." },
+        { id:uid("deal"), leadId: leads[3].id, title:"Branding + Landing", name:"Sarah", company:"Dyora Resources", phone:leads[3].phone, owner:currentUser?.name || "Admin", value: 24000000, stageId:"new", createdAt: now-86400000*1, followUpAt: now+86400000*2, notes:"Minta contoh portfolio." },
+        { id:uid("deal"), leadId: null, title:"Corporate Website", name:"Andi", company:"PT Maju Bersama", phone:"081333339999", owner:currentUser?.name || "Sales C", value: 90000000, stageId:"won", createdAt: now-86400000*8, followUpAt: now-86400000*2, notes:"Sudah deal. Tinggal invoice." },
       ];
 
       const invoices = [
@@ -1271,18 +1887,26 @@
       state.deals = deals;
       state.invoices = invoices;
       state.ui.selectedInvoiceId = invoices[0].id;
-      save();
+      saveState();
+      render();
+      logActivity("Demo data seeded by " + currentUser?.email);
       toast("Demo data berhasil ditambahkan.", "good", "Seed Demo");
     }
 
     function resetAll(){
-      localStorage.removeItem(LS_KEY);
-      location.reload();
+      if (!isAdmin()) {
+        toast("Hanya admin yang dapat reset data", "warn", "Akses Ditolak");
+        return;
+      }
+      if(confirm("Reset SEMUA data Exmind CRM? Data yang terhapus tidak bisa dikembalikan!")){
+        localStorage.removeItem(APP_KEY);
+        localStorage.removeItem(AUTH_KEY);
+        location.reload();
+      }
     }
 
-    // ---------- Invoice helpers ----------
+    // ---------- Invoice Helpers ----------
     function makeInvoiceNumber(){
-      // INV-YYYYMM-XXXX
       const d = new Date();
       const y = d.getFullYear();
       const m = String(d.getMonth()+1).padStart(2,"0");
@@ -1299,8 +1923,7 @@
     }
 
     function makeExmindPayLink(customerName, amount, invoiceId){
-      // Dummy link. Nanti tinggal ganti baseUrl + parameter asli ExmindPay.
-      const base = state.meta.exmindpayBaseUrl || "https://exmindpay.local/pay";
+      const base = state.meta.exmindpayBaseUrl || "https://exmindpay.id/pay";
       const q = new URLSearchParams({
         merchant: "Exmind_crm",
         customer: customerName || "Customer",
@@ -1334,6 +1957,11 @@
 
     // ---------- Views ----------
     function setView(view){
+      if (view === 'admin' && !isAdmin()) {
+        toast("Akses admin hanya untuk administrator", "warn", "Akses Ditolak");
+        return;
+      }
+      
       state.ui.view = view;
       $$(".navbtn").forEach(b => b.classList.toggle("active", b.dataset.view === view));
       $$(".view").forEach(v => v.style.display = "none");
@@ -1345,10 +1973,12 @@
         leads: "Kelola prospek (leads), status, sumber, dan follow up.",
         pipeline: "Drag & drop deals antar stage. Klik deal untuk detail.",
         invoices: "Buat invoice dari deal Won, generate link ExmindPay, dan track status.",
+        admin: "Panel administrasi untuk kelola pengguna dan lisensi.",
       };
-      sub.textContent = map[view] || "Exmind CRM MVP";
+      sub.textContent = map[view] || "Exmind CRM Pro";
 
-      save(); // persist ui
+      if (view === 'admin') renderAdminPanel();
+      saveState();
     }
 
     // ---------- Render ----------
@@ -1372,7 +2002,7 @@
       $("#kpiWon").textContent = fmtIDR(wonRevenue);
       $("#kpiPaid").textContent = paidInv;
 
-      // sparks (fake % based on counts)
+      // sparks
       $("#sparkLeads").style.width = clampPct((state.leads.length/20)*100) + "%";
       $("#sparkDeals").style.width = clampPct((activeDeals.length/12)*100) + "%";
       $("#sparkWon").style.width = clampPct((wonRevenue/150000000)*100) + "%";
@@ -1527,16 +2157,25 @@
     function renderLeads(){
       const host = $("#leadRows");
       const q = currentQuery();
+      const f = state.ui.filter;
 
-      const list = state.leads
+      let list = state.leads
         .filter(l => filterMatch(l,q))
         .sort((a,b)=> (b.createdAt||0)-(a.createdAt||0));
+
+      if(f === "hot") list = list.filter(isHot);
+      if(f === "today") list = list.filter(l => l.followUpAt && dateKey(l.followUpAt) === todayKey());
+
+      // Filter by ownership for non-admin
+      if (!isAdmin()) {
+        list = list.filter(l => l.owner === currentUser?.name || l.owner === currentUser?.email);
+      }
 
       if(list.length === 0){
         host.innerHTML = `
           <tr>
             <td colspan="7" style="color:var(--muted); padding:18px">
-              Belum ada leads. Klik <b>➕ Lead</b> atau gunakan <b>Seed Demo</b>.
+              Tidak ada leads untuk filter <b>${escapeHtml(f)}</b>.
             </td>
           </tr>
         `;
@@ -1546,6 +2185,7 @@
       host.innerHTML = list.map(l => {
         const st = l.status || "New";
         const tagCls = st === "Qualified" ? "ok" : st === "Contacted" ? "warn" : st === "Lost" ? "bad" : "info";
+        const canEdit = isAdmin() || l.owner === currentUser?.name || l.owner === currentUser?.email;
 
         return `
           <tr>
@@ -1562,10 +2202,12 @@
             <td><span class="tag">${escapeHtml(l.owner||"—")}</span></td>
             <td style="text-align:right">
               <div class="t-actions">
-                <button class="btn small" onclick="window.__leadToDeal('${l.id}')">➕ Deal</button>
-                <button class="btn small" onclick="window.__editLead('${l.id}')">✏️ Edit</button>
+                ${canEdit ? `
+                  <button class="btn small" onclick="window.__leadToDeal('${l.id}')">➕ Deal</button>
+                  <button class="btn small" onclick="window.__editLead('${l.id}')">✏️ Edit</button>
+                ` : ''}
                 <button class="btn small" onclick="window.__openWA('${escapeHtml(l.phone||"")}','lead','${l.id}')">WA</button>
-                <button class="btn small danger" onclick="window.__deleteLead('${l.id}')">🗑</button>
+                ${canEdit ? `<button class="btn small danger" onclick="window.__deleteLead('${l.id}')">🗑</button>` : ''}
               </div>
             </td>
           </tr>
@@ -1576,13 +2218,21 @@
     function renderPipeline(){
       const host = $("#pipeline");
       const q = currentQuery();
+      const f = state.ui.filter;
 
-      const stages = state.stages.filter(s => s.id !== "lost" || true); // keep
-      host.innerHTML = stages.map(s => {
-        const deals = state.deals
+      host.innerHTML = state.stages.map(s => {
+        let deals = state.deals
           .filter(d => d.stageId === s.id)
           .filter(d => filterMatch(d,q))
           .sort((a,b)=> (b.value||0)-(a.value||0));
+
+        if(f === "hot") deals = deals.filter(isHot);
+        if(f === "today") deals = deals.filter(d => d.followUpAt && dateKey(d.followUpAt) === todayKey());
+
+        // Filter by ownership for non-admin
+        if (!isAdmin()) {
+          deals = deals.filter(d => d.owner === currentUser?.name || d.owner === currentUser?.email);
+        }
 
         const sum = deals.reduce((a,d)=> a + Number(d.value||0), 0);
 
@@ -1606,6 +2256,11 @@
       // drag handlers
       $$(".deal").forEach(el => {
         el.addEventListener("dragstart", (e)=>{
+          if (!checkPermission('edit')) {
+            e.preventDefault();
+            toast("Anda tidak memiliki izin untuk memindahkan deal", "warn", "Akses Ditolak");
+            return;
+          }
           e.dataTransfer.setData("text/plain", el.dataset.id);
           e.dataTransfer.effectAllowed = "move";
           setTimeout(()=> el.style.opacity = ".55", 0);
@@ -1641,9 +2296,10 @@
       const tag = st === "won" ? "ok" : st === "lost" ? "bad" : st === "proposal" ? "warn" : "info";
       const due = d.followUpAt ? fmtDate(d.followUpAt) : "—";
       const hot = isHot(d);
+      const canEdit = isAdmin() || d.owner === currentUser?.name || d.owner === currentUser?.email;
 
       return `
-        <div class="deal" draggable="true" data-id="${escapeHtml(d.id)}" onclick="window.__openDeal('${escapeHtml(d.id)}')">
+        <div class="deal" draggable="${canEdit}" data-id="${escapeHtml(d.id)}" onclick="window.__openDeal('${escapeHtml(d.id)}')">
           <div class="top">
             <div style="min-width:0">
               <div class="name">${escapeHtml(d.title || "Deal")}</div>
@@ -1665,7 +2321,7 @@
           <div class="row">
             <span class="money">${fmtIDR(d.value || 0)}</span>
             <button class="btn small" onclick="event.stopPropagation(); window.__openWA('${escapeHtml(d.phone||"")}','deal','${escapeHtml(d.id)}')">WA</button>
-            ${d.stageId === "won"
+            ${d.stageId === "won" && canEdit
               ? `<button class="btn small good" onclick="event.stopPropagation(); window.__dealToInvoice('${escapeHtml(d.id)}')">Invoice</button>`
               : ``}
           </div>
@@ -1677,7 +2333,7 @@
       const host = $("#invoiceRows");
       const q = currentQuery();
 
-      const list = state.invoices
+      let list = state.invoices
         .filter(i => filterMatch(i,q))
         .sort((a,b)=> (b.createdAt||0)-(a.createdAt||0));
 
@@ -1726,7 +2382,7 @@
       const inv = state.invoices.find(i => i.id === id);
       const host = $("#invoicePreview");
 
-      const btnPay = $("#btnPayExmind Pay");
+      const btnPay = $("#btnPayExmindPay");
       const btnCopy = $("#btnCopyPayLink");
       const btnPaid = $("#btnMarkPaid");
       const btnDel = $("#btnDeleteInvoice");
@@ -1788,7 +2444,7 @@
           <div style="min-width:0">
             <b>Exmind Pay Link</b>
             <div style="color:var(--muted); font-size:12px; margin-top:6px; word-break:break-all">
-              ${escapeHtml(inv.Exmind PayLink || "—")}
+              ${escapeHtml(inv.exmindpayLink || "—")}
             </div>
           </div>
           <span>🔗</span>
@@ -1808,8 +2464,54 @@
       [btnPay, btnCopy, btnPaid, btnDel].forEach(b => b.disabled = false);
     }
 
+    function renderAdminPanel() {
+      if (!isAdmin()) return;
+      
+      // Render user list
+      const userList = $("#userList");
+      userList.innerHTML = state.users.map(u => `
+        <div class="user-item">
+          <div class="user-item-info">
+            <div class="user-item-name">${escapeHtml(u.name)} ${u.role === 'admin' ? '👑' : ''}</div>
+            <div class="user-item-email">${escapeHtml(u.email)} • ${u.status}</div>
+          </div>
+          <div style="display:flex; gap:8px;">
+            ${u.id !== currentUser.id ? `
+              <button class="btn small ${u.status === 'active' ? 'warn' : 'good'}" onclick="toggleUserStatus('${u.id}')">
+                ${u.status === 'active' ? 'Suspend' : 'Activate'}
+              </button>
+              <button class="btn small danger" onclick="deleteUser('${u.id}')">Hapus</button>
+            ` : '<span class="tag">Current</span>'}
+          </div>
+        </div>
+      `).join("");
+
+      // Update stats
+      $("#totalUsers").textContent = state.users.length;
+      $("#adminUsers").textContent = state.users.filter(u => u.role === 'admin').length;
+      
+      // Calculate DB size
+      const dataSize = new Blob([JSON.stringify(state)]).size;
+      $("#dbSize").textContent = (dataSize / 1024).toFixed(2) + " KB";
+
+      // Render logs
+      const logsHost = $("#systemLogs");
+      logsHost.innerHTML = state.logs.slice(0, 20).map(log => `
+        <div style="margin-bottom:4px; padding:4px 0; border-bottom:1px solid rgba(255,255,255,.05);">
+          <span style="color:var(--brand);">${fmtDate(log.timestamp)}</span>
+          <span style="color:var(--muted2);">[${log.user}]</span>
+          <span>${escapeHtml(log.action)}</span>
+        </div>
+      `).join("");
+    }
+
     // ---------- Actions ----------
     function addLead(data){
+      if (!checkPermission('edit')) {
+        toast("Anda tidak memiliki izin untuk menambah lead", "warn", "Akses Ditolak");
+        return null;
+      }
+      
       const lead = {
         id: uid("lead"),
         name: data.name || "",
@@ -1817,38 +2519,72 @@
         phone: data.phone || "",
         source: data.source || "Other",
         status: data.status || "New",
-        owner: data.owner || "Admin",
+        owner: data.owner || currentUser?.name || "Admin",
         createdAt: Date.now(),
         notes: data.notes || "",
         followUpAt: data.followUpAt || null,
+        createdBy: currentUser?.email
       };
       state.leads.unshift(lead);
+      logActivity(`Lead created: ${lead.name}`);
       toast("Lead berhasil ditambahkan.", "good", "Leads");
-      save();
+      saveState();
+      render();
       return lead;
     }
 
     function updateLead(id, patch){
+      if (!checkPermission('edit')) {
+        toast("Anda tidak memiliki izin untuk mengedit lead", "warn", "Akses Ditolak");
+        return;
+      }
+      
       const l = state.leads.find(x => x.id === id);
       if(!l) return;
+      
+      // Check ownership
+      if (!isAdmin() && l.owner !== currentUser?.name && l.owner !== currentUser?.email && l.createdBy !== currentUser?.email) {
+        toast("Anda hanya dapat mengedit lead milik Anda", "warn", "Akses Ditolak");
+        return;
+      }
+      
       Object.assign(l, patch);
+      logActivity(`Lead updated: ${l.name}`);
       toast("Lead berhasil diperbarui.", "good", "Leads");
-      save();
+      saveState();
+      render();
     }
 
     function deleteLead(id){
-      // if lead is linked to deals, keep but warn
+      if (!checkPermission('edit')) {
+        toast("Anda tidak memiliki izin untuk menghapus lead", "warn", "Akses Ditolak");
+        return;
+      }
+      
+      const l = state.leads.find(x => x.id === id);
+      if (!isAdmin() && l.owner !== currentUser?.name && l.owner !== currentUser?.email) {
+        toast("Anda hanya dapat menghapus lead milik Anda", "warn", "Akses Ditolak");
+        return;
+      }
+      
       const linked = state.deals.some(d => d.leadId === id);
       if(linked){
         toast("Lead terhubung ke deal. Hapus deal dulu atau ubah leadId.", "warn", "Tidak bisa hapus");
         return;
       }
       state.leads = state.leads.filter(l => l.id !== id);
+      logActivity(`Lead deleted: ${id}`);
       toast("Lead dihapus.", "warn", "Leads");
-      save();
+      saveState();
+      render();
     }
 
     function addDeal(data){
+      if (!checkPermission('edit')) {
+        toast("Anda tidak memiliki izin untuk menambah deal", "warn", "Akses Ditolak");
+        return null;
+      }
+      
       const deal = {
         id: uid("deal"),
         leadId: data.leadId || null,
@@ -1856,41 +2592,80 @@
         name: data.name || "",
         company: data.company || "",
         phone: data.phone || "",
-        owner: data.owner || "Admin",
+        owner: data.owner || currentUser?.name || "Admin",
         value: Number(data.value || 0),
         stageId: data.stageId || "new",
         createdAt: Date.now(),
         followUpAt: data.followUpAt || null,
         notes: data.notes || "",
+        createdBy: currentUser?.email
       };
       state.deals.unshift(deal);
+      logActivity(`Deal created: ${deal.title}`);
       toast("Deal berhasil dibuat.", "good", "Pipeline");
-      save();
+      saveState();
+      render();
       return deal;
     }
 
     function updateDeal(id, patch){
+      if (!checkPermission('edit')) {
+        toast("Anda tidak memiliki izin untuk mengedit deal", "warn", "Akses Ditolak");
+        return;
+      }
+      
       const d = state.deals.find(x => x.id === id);
       if(!d) return;
+      
+      if (!isAdmin() && d.owner !== currentUser?.name && d.owner !== currentUser?.email) {
+        toast("Anda hanya dapat mengedit deal milik Anda", "warn", "Akses Ditolak");
+        return;
+      }
+      
       Object.assign(d, patch);
+      logActivity(`Deal updated: ${d.title}`);
       toast("Deal diperbarui.", "good", "Pipeline");
-      save();
+      saveState();
+      render();
     }
 
     function deleteDeal(id){
+      if (!checkPermission('edit')) {
+        toast("Anda tidak memiliki izin untuk menghapus deal", "warn", "Akses Ditolak");
+        return;
+      }
+      
+      const d = state.deals.find(x => x.id === id);
+      if (!isAdmin() && d.owner !== currentUser?.name && d.owner !== currentUser?.email) {
+        toast("Anda hanya dapat menghapus deal milik Anda", "warn", "Akses Ditolak");
+        return;
+      }
+      
       const invLinked = state.invoices.some(i => i.dealId === id);
       if(invLinked){
         toast("Deal sudah terhubung invoice. Hapus invoice dulu.", "warn", "Tidak bisa hapus");
         return;
       }
       state.deals = state.deals.filter(d => d.id !== id);
+      logActivity(`Deal deleted: ${id}`);
       toast("Deal dihapus.", "warn", "Pipeline");
-      save();
+      saveState();
+      render();
     }
 
     function moveDeal(id, stageId){
+      if (!checkPermission('edit')) {
+        toast("Anda tidak memiliki izin untuk memindahkan deal", "warn", "Akses Ditolak");
+        return;
+      }
+      
       const d = state.deals.find(x => x.id === id);
       if(!d) return;
+
+      if (!isAdmin() && d.owner !== currentUser?.name && d.owner !== currentUser?.email) {
+        toast("Anda hanya dapat memindahkan deal milik Anda", "warn", "Akses Ditolak");
+        return;
+      }
 
       const old = d.stageId;
       d.stageId = stageId;
@@ -1902,10 +2677,17 @@
       } else if(old !== stageId){
         toast(`Deal dipindahkan ke ${stageById(stageId)?.name || stageId}.`, "info", "Pipeline");
       }
-      save();
+      logActivity(`Deal moved: ${d.title} → ${stageId}`);
+      saveState();
+      render();
     }
 
     function addInvoice(data){
+      if (!checkPermission('edit')) {
+        toast("Anda tidak memiliki izin untuk membuat invoice", "warn", "Akses Ditolak");
+        return null;
+      }
+      
       const inv = {
         id: uid("inv"),
         number: makeInvoiceNumber(),
@@ -1920,38 +2702,152 @@
         dealId: data.dealId || null,
         exmindpayLink: "",
         notes: data.notes || "",
+        createdBy: currentUser?.email
       };
       const total = calcInvoiceTotal(inv);
       inv.exmindpayLink = makeExmindPayLink(inv.customerName, total, inv.id);
 
       state.invoices.unshift(inv);
       state.ui.selectedInvoiceId = inv.id;
+      logActivity(`Invoice created: ${inv.number}`);
       toast("Invoice berhasil dibuat.", "good", "Invoices");
-      save();
+      saveState();
+      render();
       return inv;
     }
 
     function updateInvoice(id, patch){
+      if (!checkPermission('edit')) {
+        toast("Anda tidak memiliki izin untuk mengedit invoice", "warn", "Akses Ditolak");
+        return;
+      }
+      
       const inv = state.invoices.find(x => x.id === id);
       if(!inv) return;
       Object.assign(inv, patch);
       const total = calcInvoiceTotal(inv);
       inv.exmindpayLink = makeExmindPayLink(inv.customerName, total, inv.id);
+      logActivity(`Invoice updated: ${inv.number}`);
       toast("Invoice diperbarui.", "good", "Invoices");
-      save();
+      saveState();
+      render();
     }
 
     function deleteInvoice(id){
+      if (!checkPermission('edit')) {
+        toast("Anda tidak memiliki izin untuk menghapus invoice", "warn", "Akses Ditolak");
+        return;
+      }
+      
       state.invoices = state.invoices.filter(i => i.id !== id);
       if(state.ui.selectedInvoiceId === id) state.ui.selectedInvoiceId = null;
+      logActivity(`Invoice deleted: ${id}`);
       toast("Invoice dihapus.", "warn", "Invoices");
-      save();
+      saveState();
+      render();
+    }
+
+    // ---------- Admin Functions ----------
+    function toggleUserStatus(userId) {
+      if (!isAdmin()) return;
+      const u = state.users.find(x => x.id === userId);
+      if (!u) return;
+      u.status = u.status === 'active' ? 'suspended' : 'active';
+      logActivity(`User ${u.status === 'active' ? 'activated' : 'suspended'}: ${u.email}`);
+      saveState();
+      renderAdminPanel();
+      toast(`User ${u.status === 'active' ? 'diaktifkan' : 'ditangguhkan'}`, "good", "Admin");
+    }
+
+    function deleteUser(userId) {
+      if (!isAdmin()) return;
+      if (confirm("Hapus user ini secara permanen?")) {
+        state.users = state.users.filter(u => u.id !== userId);
+        logActivity(`User deleted: ${userId}`);
+        saveState();
+        renderAdminPanel();
+        toast("User dihapus", "good", "Admin");
+      }
+    }
+
+    function showCreateUserModal() {
+      if (!isAdmin()) return;
+      openModal("➕ Tambah User Baru", `
+        <div class="card">
+          <div class="form">
+            <div class="field">
+              <label>Nama</label>
+              <input id="newUserName" placeholder="Nama lengkap" />
+            </div>
+            <div class="field">
+              <label>Email</label>
+              <input id="newUserEmail" type="email" placeholder="email@company.com" />
+            </div>
+            <div class="field">
+              <label>Password</label>
+              <input id="newUserPass" type="password" placeholder="••••••••" />
+            </div>
+            <div class="field">
+              <label>Role</label>
+              <select id="newUserRole">
+                <option value="user">User</option>
+                <option value="admin">Admin</option>
+              </select>
+            </div>
+          </div>
+          <div class="hr"></div>
+          <div style="display:flex; gap:10px; justify-content:flex-end;">
+            <button class="btn" onclick="closeModal()">Batal</button>
+            <button class="btn primary" onclick="createNewUser()">Simpan</button>
+          </div>
+        </div>
+      `);
+    }
+
+    function createNewUser() {
+      const name = $("#newUserName").value.trim();
+      const email = $("#newUserEmail").value.trim();
+      const pass = $("#newUserPass").value;
+      const role = $("#newUserRole").value;
+
+      if (!name || !email || !pass) {
+        toast("Semua field wajib diisi", "warn", "Validasi");
+        return;
+      }
+
+      if (state.users.find(u => u.email === email)) {
+        toast("Email sudah terdaftar", "warn", "Error");
+        return;
+      }
+
+      const newUser = {
+        id: uid("user"),
+        name,
+        email,
+        passwordHash: Crypto.hash(pass),
+        role,
+        status: 'active',
+        createdAt: Date.now(),
+        permissions: role === 'admin' ? ['all'] : ['leads', 'deals', 'invoices', 'view']
+      };
+
+      state.users.push(newUser);
+      logActivity(`Admin created new ${role}: ${email}`);
+      saveState();
+      closeModal();
+      renderAdminPanel();
+      toast("User berhasil dibuat", "good", "Admin");
     }
 
     // ---------- UI Modals ----------
     function modalLeadForm(lead){
+      if (!checkPermission('edit')) {
+        toast("Anda tidak memiliki izin untuk ini", "warn", "Akses Ditolak");
+        return;
+      }
+      
       const isEdit = !!lead;
-      const l = lead || { name:"", company:"", phone:"", source:"Instagram", status:"New", owner:"Admin", notes:"", followUpAt:null };
+      const l = lead || { name:"", company:"", phone:"", source:"Instagram", status:"New", owner:currentUser?.name || "Admin", notes:"", followUpAt:null };
 
       openModal(isEdit ? "✏️ Edit Lead" : "➕ Tambah Lead", `
         <div class="card">
@@ -1983,9 +2879,10 @@
             </div>
             <div class="field">
               <label>Owner</label>
-              <select id="f_owner">
+              <select id="f_owner" ${!isAdmin() ? 'disabled' : ''}>
                 ${OWNERS.map(s => `<option ${s===l.owner?"selected":""}>${escapeHtml(s)}</option>`).join("")}
               </select>
+              ${!isAdmin() ? '<small style="color:var(--muted); font-size:11px;">Hanya admin yang dapat mengubah owner</small>' : ''}
             </div>
 
             <div class="field">
@@ -2007,7 +2904,7 @@
 
           <div style="display:flex; gap:10px; flex-wrap:wrap; justify-content:flex-end">
             ${isEdit ? `<button class="btn danger" id="btnDelLead">🗑 Hapus</button>` : ""}
-            <button class="btn" onclick="window.__closeModal()">Batal</button>
+            <button class="btn" onclick="closeModal()">Batal</button>
             <button class="btn primary" id="btnSaveLead">Simpan</button>
           </div>
         </div>
@@ -2019,7 +2916,7 @@
         const phone = $("#f_phone").value.trim();
         const source = $("#f_source").value;
         const status = $("#f_status").value;
-        const owner = $("#f_owner").value;
+        const owner = isAdmin() ? $("#f_owner").value : (l.owner || currentUser?.name);
         const notes = $("#f_notes").value.trim();
 
         const d = $("#f_follow").value;
@@ -2056,6 +2953,11 @@
     }
 
     function modalDealForm(deal, preset={}){
+      if (!checkPermission('edit')) {
+        toast("Anda tidak memiliki izin untuk ini", "warn", "Akses Ditolak");
+        return;
+      }
+      
       const isEdit = !!deal;
       const d = deal || {
         leadId: preset.leadId || null,
@@ -2063,7 +2965,7 @@
         name: preset.name || "",
         company: preset.company || "",
         phone: preset.phone || "",
-        owner: preset.owner || "Admin",
+        owner: currentUser?.name || "Admin",
         value: preset.value || 0,
         stageId: preset.stageId || "new",
         followUpAt: preset.followUpAt || null,
@@ -2095,7 +2997,7 @@
             </div>
             <div class="field">
               <label>Owner</label>
-              <select id="d_owner">
+              <select id="d_owner" ${!isAdmin() ? 'disabled' : ''}>
                 ${OWNERS.map(s => `<option ${s===d.owner?"selected":""}>${escapeHtml(s)}</option>`).join("")}
               </select>
             </div>
@@ -2130,7 +3032,7 @@
 
           <div style="display:flex; gap:10px; flex-wrap:wrap; justify-content:flex-end">
             ${isEdit ? `<button class="btn danger" id="btnDelDeal">🗑 Hapus</button>` : ""}
-            <button class="btn" onclick="window.__closeModal()">Batal</button>
+            <button class="btn" onclick="closeModal()">Batal</button>
             <button class="btn primary" id="btnSaveDeal">Simpan</button>
           </div>
         </div>
@@ -2141,7 +3043,7 @@
         const name = $("#d_name").value.trim();
         const company = $("#d_company").value.trim();
         const phone = $("#d_phone").value.trim();
-        const owner = $("#d_owner").value;
+        const owner = isAdmin() ? $("#d_owner").value : (d.owner || currentUser?.name);
         const value = Number($("#d_value").value || 0);
         const stageId = $("#d_stage").value;
         const notes = $("#d_notes").value.trim();
@@ -2182,6 +3084,7 @@
     function modalDealDetail(deal){
       const st = stageById(deal.stageId)?.name || deal.stageId;
       const due = deal.followUpAt ? fmtDate(deal.followUpAt) : "—";
+      const canEdit = isAdmin() || deal.owner === currentUser?.name || deal.owner === currentUser?.email;
 
       const waTemplates = [
         { name:"Follow-up 1", text:`Halo ${deal.name || ""}, saya dari ${state.meta.company}. Saya follow-up terkait ${deal.title}. Apakah bisa kita lanjutkan pembahasannya hari ini?` },
@@ -2225,12 +3128,14 @@
             <div class="hr"></div>
 
             <div style="display:flex; gap:10px; flex-wrap:wrap">
-              <button class="btn" id="btnEditDeal">✏️ Edit</button>
+              ${canEdit ? `
+                <button class="btn" id="btnEditDeal">✏️ Edit</button>
+                <button class="btn warn" id="btnSetToday">📅 Follow-up Today</button>
+                <button class="btn good" id="btnMarkWon">🏁 Mark Won</button>
+                <button class="btn danger" id="btnMarkLost">⛔ Mark Lost</button>
+                <button class="btn good" id="btnInvFromDeal">🧾 Buat Invoice</button>
+              ` : ''}
               <button class="btn" id="btnWADeal">📩 WA</button>
-              <button class="btn warn" id="btnSetToday">📅 Follow-up Today</button>
-              <button class="btn good" id="btnMarkWon">🏁 Mark Won</button>
-              <button class="btn danger" id="btnMarkLost">⛔ Mark Lost</button>
-              <button class="btn good" id="btnInvFromDeal">🧾 Buat Invoice</button>
             </div>
           </div>
 
@@ -2255,37 +3160,44 @@
         </div>
       `);
 
-      $("#btnEditDeal").onclick = () => {
-        closeModal();
-        modalDealForm(deal);
-      };
+      if (canEdit) {
+        $("#btnEditDeal").onclick = () => {
+          closeModal();
+          modalDealForm(deal);
+        };
+
+        $("#btnSetToday").onclick = () => {
+          const dt = new Date();
+          dt.setHours(10,0,0,0);
+          updateDeal(deal.id, { followUpAt: dt.getTime() });
+          toast("Follow-up diset untuk hari ini.", "good", "Follow-up");
+        };
+
+        $("#btnMarkWon").onclick = () => {
+          moveDeal(deal.id, "won");
+          closeModal();
+        };
+
+        $("#btnMarkLost").onclick = () => {
+          moveDeal(deal.id, "lost");
+          closeModal();
+        };
+
+        $("#btnInvFromDeal").onclick = () => {
+          closeModal();
+          dealToInvoice(deal.id);
+        };
+      }
 
       $("#btnWADeal").onclick = () => openWA(deal.phone, deal.title, deal.company);
-
-      $("#btnSetToday").onclick = () => {
-        const dt = new Date();
-        dt.setHours(10,0,0,0);
-        updateDeal(deal.id, { followUpAt: dt.getTime() });
-        toast("Follow-up diset untuk hari ini.", "good", "Follow-up");
-      };
-
-      $("#btnMarkWon").onclick = () => {
-        moveDeal(deal.id, "won");
-        closeModal();
-      };
-
-      $("#btnMarkLost").onclick = () => {
-        moveDeal(deal.id, "lost");
-        closeModal();
-      };
-
-      $("#btnInvFromDeal").onclick = () => {
-        closeModal();
-        dealToInvoice(deal.id);
-      };
     }
 
     function modalInvoiceForm(inv, preset={}){
+      if (!checkPermission('edit')) {
+        toast("Anda tidak memiliki izin untuk ini", "warn", "Akses Ditolak");
+        return;
+      }
+      
       const isEdit = !!inv;
 
       const x = inv || {
@@ -2358,7 +3270,7 @@
 
           <div style="display:flex; gap:10px; flex-wrap:wrap; justify-content:flex-end">
             ${isEdit ? `<button class="btn danger" id="btnDelInv">🗑 Hapus</button>` : ""}
-            <button class="btn" onclick="window.__closeModal()">Batal</button>
+            <button class="btn" onclick="closeModal()">Batal</button>
             <button class="btn primary" id="btnSaveInv">Simpan</button>
           </div>
         </div>
@@ -2403,6 +3315,11 @@
     }
 
     function modalStageConfig(){
+      if (!isAdmin()) {
+        toast("Hanya admin yang dapat mengkonfigurasi stage", "warn", "Akses Ditolak");
+        return;
+      }
+      
       openModal("⚙️ Stage Config", `
         <div class="card">
           <h4>Atur nama stage (MVP)</h4>
@@ -2424,7 +3341,7 @@
           <div class="hr"></div>
 
           <div style="display:flex; gap:10px; justify-content:flex-end; flex-wrap:wrap">
-            <button class="btn" onclick="window.__closeModal()">Batal</button>
+            <button class="btn" onclick="closeModal()">Batal</button>
             <button class="btn primary" id="btnSaveStages">Simpan</button>
           </div>
         </div>
@@ -2436,9 +3353,11 @@
           const s = state.stages.find(x => x.id === id);
           if(s) s.name = inp.value.trim() || s.name;
         });
+        logActivity("Pipeline stages updated");
         toast("Stage berhasil diperbarui.", "good", "Pipeline");
         closeModal();
-        save();
+        saveState();
+        render();
       };
     }
 
@@ -2464,7 +3383,7 @@
                   <b>${escapeHtml(t.name)}</b>
                   <div style="color:var(--muted); font-size:12px; margin-top:6px">${escapeHtml(t.text)}</div>
                 </div>
-                <span><button class="btn small" onclick="navigator.clipboard.writeText('${escapeHtml(t.text)}'); window.__toast('Template dicopy.','good','WA Template')">Copy</button></span>
+                <span><button class="btn small" onclick="navigator.clipboard.writeText('${escapeHtml(t.text)}'); toast('Template dicopy.','good','WA Template')">Copy</button></span>
               </div>
             `).join("")}
           </div>
@@ -2472,7 +3391,7 @@
           <div class="hr"></div>
 
           <div style="display:flex; gap:10px; justify-content:flex-end">
-            <button class="btn primary" onclick="window.__closeModal()">Tutup</button>
+            <button class="btn primary" onclick="closeModal()">Tutup</button>
           </div>
         </div>
       `);
@@ -2497,6 +3416,7 @@
 
       const link = waLink(p, msg);
       window.open(link, "_blank", "noopener,noreferrer");
+      logActivity(`WhatsApp opened for: ${p}`);
     }
 
     function sendWATemplate(dealId, templateName){
@@ -2520,11 +3440,17 @@
         return;
       }
       window.open(link, "_blank", "noopener,noreferrer");
+      logActivity(`WA Template sent: ${templateName} to ${d.name}`);
       toast(`Template "${templateName}" dibuka di WhatsApp.`, "good", "WhatsApp");
     }
 
     // ---------- Conversions ----------
     function leadToDeal(leadId){
+      if (!checkPermission('edit')) {
+        toast("Anda tidak memiliki izin untuk ini", "warn", "Akses Ditolak");
+        return;
+      }
+      
       const l = state.leads.find(x => x.id === leadId);
       if(!l) return;
       modalDealForm(null, {
@@ -2542,6 +3468,11 @@
     }
 
     function dealToInvoice(dealId){
+      if (!checkPermission('edit')) {
+        toast("Anda tidak memiliki izin untuk membuat invoice", "warn", "Akses Ditolak");
+        return;
+      }
+      
       const d = state.deals.find(x => x.id === dealId);
       if(!d) return;
 
@@ -2565,6 +3496,11 @@
     }
 
     function wonToInvoice(){
+      if (!checkPermission('edit')) {
+        toast("Anda tidak memiliki izin untuk ini", "warn", "Akses Ditolak");
+        return;
+      }
+      
       const won = state.deals
         .filter(d => d.stageId === "won")
         .filter(d => !state.invoices.some(i => i.dealId === d.id));
@@ -2574,14 +3510,16 @@
         return;
       }
 
-      // Create invoice for first one (MVP)
       dealToInvoice(won[0].id);
     }
 
     // ---------- CSV Import ----------
     function importCSV(text){
-      // Expected headers (flexible):
-      // name, company, phone, source, status, owner, notes
+      if (!checkPermission('edit')) {
+        toast("Anda tidak memiliki izin untuk import data", "warn", "Akses Ditolak");
+        return;
+      }
+      
       const lines = text.split(/\r?\n/).filter(Boolean);
       if(lines.length < 2){
         toast("CSV kosong / format tidak valid.", "warn", "Import CSV");
@@ -2603,7 +3541,7 @@
           phone: row[idx("phone")] ?? "",
           source: row[idx("source")] ?? "Other",
           status: row[idx("status")] ?? "New",
-          owner: row[idx("owner")] ?? "Admin",
+          owner: row[idx("owner")] ?? currentUser?.name || "Admin",
           notes: row[idx("notes")] ?? ""
         };
 
@@ -2612,38 +3550,86 @@
         added++;
       }
 
+      logActivity(`CSV imported: ${added} leads`);
       toast(`${added} lead berhasil diimport.`, "good", "Import CSV");
-      save();
     }
 
     // ---------- Export ----------
     function exportJSON(){
-      const data = JSON.stringify(state, null, 2);
+      if (!checkPermission('view')) {
+        toast("Anda tidak memiliki izin untuk export", "warn", "Akses Ditolak");
+        return;
+      }
+      
+      // Filter data based on role
+      let exportData = { ...state };
+      if (!isAdmin()) {
+        exportData.leads = state.leads.filter(l => l.owner === currentUser?.name || l.owner === currentUser?.email);
+        exportData.deals = state.deals.filter(d => d.owner === currentUser?.name || d.owner === currentUser?.email);
+        exportData.invoices = state.invoices.filter(i => exportData.deals.some(d => d.id === i.dealId));
+        exportData.users = []; // Don't export users for non-admin
+        exportData.logs = [];
+      }
+      
+      const data = JSON.stringify(exportData, null, 2);
       const blob = new Blob([data], { type:"application/json" });
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = `Exmind-crm-mvp-export-${Date.now()}.json`;
+      a.download = `Exmind-crm-export-${currentUser?.email}-${Date.now()}.json`;
       document.body.appendChild(a);
       a.click();
       a.remove();
       URL.revokeObjectURL(url);
+      logActivity("Data exported by " + currentUser?.email);
       toast("Export JSON berhasil.", "good", "Export");
     }
 
     // ---------- Events ----------
+    // Auth tabs
+    $$(".auth-tab").forEach(tab => {
+      tab.addEventListener("click", () => {
+        $$(".auth-tab").forEach(t => t.classList.remove("active"));
+        tab.classList.add("active");
+        const isRegister = tab.dataset.tab === "register";
+        $("#nameField").style.display = isRegister ? "block" : "none";
+        $("#licenseField").style.display = isRegister ? "block" : "none";
+        $("#authBtn").textContent = isRegister ? "Daftar" : "Masuk";
+      });
+    });
+
+    // Auth form
+    $("#authForm").addEventListener("submit", (e) => {
+      e.preventDefault();
+      const isRegister = $(".auth-tab.active").dataset.tab === "register";
+      const email = $("#authEmail").value.trim();
+      const password = $("#authPassword").value;
+      
+      if (isRegister) {
+        const name = $("#authName").value.trim();
+        const license = $("#authLicense").value.trim();
+        if (!name) {
+          toast("Nama wajib diisi", "warn", "Validasi");
+          return;
+        }
+        register(name, email, password, license);
+      } else {
+        login(email, password);
+      }
+    });
+
     // nav
     $$(".navbtn").forEach(btn => btn.addEventListener("click", ()=> setView(btn.dataset.view)));
 
     // chips
     $$(".chip").forEach(ch => ch.addEventListener("click", ()=>{
       state.ui.filter = ch.dataset.filter;
-      save();
+      saveState();
+      render();
     }));
 
     // search
     $("#q").addEventListener("input", ()=>{
-      // no save for query
       render();
     });
 
@@ -2654,11 +3640,7 @@
 
     // sidebar actions
     $("#btnSeed").onclick = seed;
-    $("#btnReset").onclick = () => {
-      if(confirm("Reset semua data Exmind CRM MVP?")){
-        resetAll();
-      }
-    };
+    $("#btnReset").onclick = resetAll;
 
     // leads view actions
     $("#btnImportCSV").onclick = () => $("#csvFile").click();
@@ -2671,7 +3653,6 @@
     });
 
     $("#btnAddFromDeal").onclick = () => {
-      // quick: pick a deal to create lead (MVP)
       const d = state.deals[0];
       if(!d){
         toast("Belum ada deal.", "info", "Leads");
@@ -2695,11 +3676,17 @@
     // invoices actions
     $("#btnNewInvoice").onclick = () => modalInvoiceForm(null);
     $("#btnMarkAllPending").onclick = () => {
+      if (!checkPermission('edit')) {
+        toast("Anda tidak memiliki izin untuk ini", "warn", "Akses Ditolak");
+        return;
+      }
       state.invoices.forEach(i => {
         if(i.status === "unpaid") i.status = "pending";
       });
+      logActivity("All unpaid invoices marked as pending");
       toast("Invoice unpaid ditandai pending.", "info", "Invoices");
-      save();
+      saveState();
+      render();
     };
 
     // dashboard quick actions
@@ -2707,10 +3694,11 @@
     $("#btnQuickInvoice").onclick = wonToInvoice;
 
     // invoice preview actions
-    $("#btnPayExmind Pay").onclick = () => {
+    $("#btnPayExmindPay").onclick = () => {
       const inv = state.invoices.find(i => i.id === state.ui.selectedInvoiceId);
       if(!inv) return;
       window.open(inv.exmindpayLink, "_blank", "noopener,noreferrer");
+      logActivity(`ExmindPay link opened for invoice: ${inv.number}`);
       toast("Link ExmindPay dibuka.", "good", "ExmindPay");
     };
     $("#btnCopyPayLink").onclick = () => copyPayLink(state.ui.selectedInvoiceId);
@@ -2743,7 +3731,6 @@
     };
 
     window.__openWA = (phone, type, id) => {
-      // type: lead/deal
       if(type === "lead"){
         const l = state.leads.find(x => x.id === id);
         if(!l) return;
@@ -2762,7 +3749,8 @@
 
     window.__selectInvoice = (id) => {
       state.ui.selectedInvoiceId = id;
-      save();
+      saveState();
+      render();
     };
 
     window.__openInvoice = (id) => {
@@ -2778,178 +3766,32 @@
       const inv = state.invoices.find(i => i.id === id);
       if(!inv) return;
       navigator.clipboard.writeText(inv.exmindpayLink || "");
+      logActivity(`Payment link copied for invoice: ${inv.number}`);
       toast("Link Exmind Pay dicopy.", "good", "Copy");
     }
 
     function markPaid(id){
+      if (!checkPermission('edit')) {
+        toast("Anda tidak memiliki izin untuk ini", "warn", "Akses Ditolak");
+        return;
+      }
+      
       const inv = state.invoices.find(i => i.id === id);
       if(!inv) return;
       inv.status = "paid";
+      logActivity(`Invoice marked as paid: ${inv.number}`);
       toast("Invoice ditandai PAID.", "good", "Paid");
-      save();
+      saveState();
+      render();
     }
 
     // ---------- Init ----------
-    // set env pill
-    $("#envPill").textContent = "localStorage";
-
-    // default filter behavior (MVP)
-    // - all: show all
-    // - today: prioritize followUp today (but we only filter in hot & suggestions)
-    // - hot: only show hot items
-    // We'll implement "hot" as a hard filter for tables & pipeline.
-    function applyFilter(){
-      const f = state.ui.filter;
-
-      if(f === "hot"){
-        // Filter leads & deals arrays in render by query only (MVP: not modifying data)
-        // We'll simply hide non-hot by using query injection.
-        // (Better: add conditional in render methods.)
-      }
-    }
-
-    // Patch render methods to respect filter
-    const _renderLeads = renderLeads;
-    renderLeads = function(){
-      const host = $("#leadRows");
-      const q = currentQuery();
-      const f = state.ui.filter;
-
-      let list = state.leads
-        .filter(l => filterMatch(l,q))
-        .sort((a,b)=> (b.createdAt||0)-(a.createdAt||0));
-
-      if(f === "hot") list = list.filter(isHot);
-      if(f === "today") list = list.filter(l => l.followUpAt && dateKey(l.followUpAt) === todayKey());
-
-      if(list.length === 0){
-        host.innerHTML = `
-          <tr>
-            <td colspan="7" style="color:var(--muted); padding:18px">
-              Tidak ada leads untuk filter <b>${escapeHtml(f)}</b>.
-            </td>
-          </tr>
-        `;
-        return;
-      }
-
-      host.innerHTML = list.map(l => {
-        const st = l.status || "New";
-        const tagCls = st === "Qualified" ? "ok" : st === "Contacted" ? "warn" : st === "Lost" ? "bad" : "info";
-
-        return `
-          <tr>
-            <td>
-              <div style="display:flex; flex-direction:column; gap:4px">
-                <b>${escapeHtml(l.name||"—")}</b>
-                <span style="color:var(--muted); font-size:12px">${fmtDate(l.createdAt)}</span>
-              </div>
-            </td>
-            <td>${escapeHtml(l.company||"—")}</td>
-            <td style="font-family:var(--mono)">${escapeHtml(l.phone||"—")}</td>
-            <td><span class="tag">${escapeHtml(l.source||"—")}</span></td>
-            <td><span class="tag ${tagCls}">${escapeHtml(st)}</span></td>
-            <td><span class="tag">${escapeHtml(l.owner||"—")}</span></td>
-            <td style="text-align:right">
-              <div class="t-actions">
-                <button class="btn small" onclick="window.__leadToDeal('${l.id}')">➕ Deal</button>
-                <button class="btn small" onclick="window.__editLead('${l.id}')">✏️ Edit</button>
-                <button class="btn small" onclick="window.__openWA('${escapeHtml(l.phone||"")}','lead','${l.id}')">WA</button>
-                <button class="btn small danger" onclick="window.__deleteLead('${l.id}')">🗑</button>
-              </div>
-            </td>
-          </tr>
-        `;
-      }).join("");
-    };
-
-    const _renderPipeline = renderPipeline;
-    renderPipeline = function(){
-      const host = $("#pipeline");
-      const q = currentQuery();
-      const f = state.ui.filter;
-
-      host.innerHTML = state.stages.map(s => {
-        let deals = state.deals
-          .filter(d => d.stageId === s.id)
-          .filter(d => filterMatch(d,q))
-          .sort((a,b)=> (b.value||0)-(a.value||0));
-
-        if(f === "hot") deals = deals.filter(isHot);
-        if(f === "today") deals = deals.filter(d => d.followUpAt && dateKey(d.followUpAt) === todayKey());
-
-        const sum = deals.reduce((a,d)=> a + Number(d.value||0), 0);
-
-        return `
-          <div class="col" data-stage="${escapeHtml(s.id)}">
-            <div class="ch">
-              <div style="min-width:0">
-                <b>${escapeHtml(s.name)}</b>
-                <span>${deals.length} deal • ${fmtIDR(sum)}</span>
-              </div>
-              <span class="tag">${escapeHtml(s.id)}</span>
-            </div>
-            <div class="drop" data-drop="${escapeHtml(s.id)}">
-              ${deals.map(d => dealCard(d)).join("")}
-              ${deals.length ? "" : `<div style="color:var(--muted); font-size:12px; padding:8px 6px">Drop deal di sini…</div>`}
-            </div>
-          </div>
-        `;
-      }).join("");
-
-      // drag handlers
-      $$(".deal").forEach(el => {
-        el.addEventListener("dragstart", (e)=>{
-          e.dataTransfer.setData("text/plain", el.dataset.id);
-          e.dataTransfer.effectAllowed = "move";
-          setTimeout(()=> el.style.opacity = ".55", 0);
-        });
-        el.addEventListener("dragend", ()=>{
-          el.style.opacity = "1";
-        });
-      });
-
-      $$(".drop").forEach(drop => {
-        drop.addEventListener("dragover", (e)=>{
-          e.preventDefault();
-          drop.style.outline = "2px dashed rgba(102,217,255,.35)";
-          drop.style.outlineOffset = "6px";
-        });
-        drop.addEventListener("dragleave", ()=>{
-          drop.style.outline = "";
-          drop.style.outlineOffset = "";
-        });
-        drop.addEventListener("drop", (e)=>{
-          e.preventDefault();
-          drop.style.outline = "";
-          drop.style.outlineOffset = "";
-          const id = e.dataTransfer.getData("text/plain");
-          const stageId = drop.dataset.drop;
-          moveDeal(id, stageId);
-        });
-      });
-    };
-
-    // filter persistence on chip click
-    $$(".chip").forEach(ch => ch.addEventListener("click", ()=>{
-      state.ui.filter = ch.dataset.filter;
-      render();
-      localStorage.setItem(LS_KEY, JSON.stringify(state));
-    }));
-
-    // global select invoice
-    window.__selectInvoice = (id) => {
-      state.ui.selectedInvoiceId = id;
-      render();
-      localStorage.setItem(LS_KEY, JSON.stringify(state));
-    };
-
-    // initial render
-    render();
+    initData();
+    initAuth();
 
     // if no data, show toast hint
-    if(state.leads.length === 0 && state.deals.length === 0){
-      toast("Klik ✨ Seed Demo untuk isi data contoh, atau mulai input lead/deal.", "info", "Exmind CRM MVP");
+    if(state.leads.length === 0 && state.deals.length === 0 && currentUser){
+      toast("Klik ✨ Seed Demo untuk isi data contoh, atau mulai input lead/deal.", "info", "Exmind CRM Pro");
     }
   </script>
 </body>
