@@ -126,11 +126,15 @@
       gap:16px;
       text-align:left;
     }
+    .auth-field{
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+    }
     .auth-field label{
       display:block;
       font-size:12px;
       color:var(--muted);
-      margin-bottom:6px;
       text-transform:uppercase;
       letter-spacing:.5px;
     }
@@ -165,6 +169,11 @@
     .auth-btn:hover{
       transform: translateY(-2px);
       box-shadow: 0 10px 30px rgba(102,217,255,.25);
+    }
+    .auth-btn:disabled{
+      opacity:.5;
+      cursor:not-allowed;
+      transform:none;
     }
     .auth-footer{
       margin-top:24px;
@@ -1045,8 +1054,8 @@
       </div>
 
       <div class="auth-tabs" style="margin-top:24px;">
-        <button class="auth-tab active" data-tab="login">Login</button>
-        <button class="auth-tab" data-tab="register">Daftar</button>
+        <button class="auth-tab active" id="tabLogin" data-tab="login">Login</button>
+        <button class="auth-tab" id="tabRegister" data-tab="register">Daftar</button>
       </div>
 
       <form class="auth-form" id="authForm">
@@ -1454,13 +1463,7 @@
 
   <script>
     /******************************************************************
-     * Exmind CRM Pro - Commercial Version
-     * Features:
-     * - Multi-user authentication (Admin/User roles)
-     * - License key system
-     * - Role-based access control
-     * - Encrypted localStorage
-     * - Audit logging
+     * Exmind CRM Pro - Commercial Version (FIXED)
      ******************************************************************/
 
     const APP_KEY = "ExmindCRM_Pro_v2";
@@ -1493,14 +1496,14 @@
         company: "Astria Group",
         licenseKey: LICENSE_KEY,
         licenseType: "PRO",
-        licenseExpiry: null, // null = lifetime
+        licenseExpiry: null,
       },
       stages: DEFAULT_STAGES,
       leads: [],
       deals: [],
       invoices: [],
-      users: [], // Array of user objects
-      logs: [], // Audit logs
+      users: [],
+      logs: [],
       ui: {
         view: "dashboard",
         filter: "all",
@@ -1521,11 +1524,10 @@
         try {
           return JSON.parse(decodeURIComponent(atob(str)));
         } catch(e) {
-          return str;
+          return null;
         }
       },
       hash: (str) => {
-        // Simple hash for password (in production, use bcrypt)
         let hash = 0;
         for (let i = 0; i < str.length; i++) {
           const char = str.charCodeAt(i);
@@ -1538,12 +1540,14 @@
 
     // ---------- Auth System ----------
     function initAuth() {
+      // First, ensure default data exists
+      initData();
+      
       const saved = localStorage.getItem(AUTH_KEY);
       if (saved) {
         try {
           const auth = Crypto.decode(saved);
-          if (auth.sessionToken && auth.user) {
-            // Validate session
+          if (auth && auth.sessionToken && auth.user) {
             if (validateSession(auth.sessionToken)) {
               currentUser = auth.user;
               sessionToken = auth.sessionToken;
@@ -1559,7 +1563,6 @@
     }
 
     function validateSession(token) {
-      // Simple session validation - in production use JWT
       return token && token.length > 20;
     }
 
@@ -1588,9 +1591,8 @@
       currentUser = user;
       sessionToken = generateSessionToken(user);
       
-      // Save auth
       localStorage.setItem(AUTH_KEY, Crypto.encode({
-        user: { ...user, passwordHash: undefined }, // Don't store password in session
+        user: { ...user, passwordHash: undefined },
         sessionToken: sessionToken,
         loginAt: Date.now()
       }));
@@ -1602,7 +1604,6 @@
     }
 
     function register(name, email, password, licenseKey = null) {
-      // Check if email exists
       if (state.users.find(u => u.email === email)) {
         toast("Email sudah terdaftar", "warn", "Registrasi Gagal");
         return false;
@@ -1627,7 +1628,6 @@
       
       logActivity(`New ${isAdmin ? 'admin' : 'user'} registered: ${email}`);
       
-      // Auto login
       currentUser = newUser;
       sessionToken = generateSessionToken(newUser);
       localStorage.setItem(AUTH_KEY, Crypto.encode({
@@ -1651,34 +1651,31 @@
     }
 
     function showAuthScreen() {
-      $("#authScreen").style.display = "flex";
-      $("#mainApp").style.display = "none";
+      document.getElementById("authScreen").style.display = "flex";
+      document.getElementById("mainApp").style.display = "none";
     }
 
     function showMainApp() {
-      $("#authScreen").style.display = "none";
-      $("#mainApp").style.display = "grid";
+      document.getElementById("authScreen").style.display = "none";
+      document.getElementById("mainApp").style.display = "grid";
       
-      // Update UI based on role
       updateUserUI();
-      
-      // Load state
-      loadState();
       render();
       
-      // Show admin panel if admin
       if (isAdmin()) {
-        $("#adminNavBtn").style.display = "flex";
+        document.getElementById("adminNavBtn").style.display = "flex";
+      } else {
+        document.getElementById("adminNavBtn").style.display = "none";
       }
     }
 
     function updateUserUI() {
       if (!currentUser) return;
       
-      $("#userNameDisplay").textContent = currentUser.name;
-      $("#userEmailDisplay").textContent = currentUser.email;
+      document.getElementById("userNameDisplay").textContent = currentUser.name;
+      document.getElementById("userEmailDisplay").textContent = currentUser.email;
       
-      const roleBadge = $("#userRoleBadge");
+      const roleBadge = document.getElementById("userRoleBadge");
       roleBadge.textContent = currentUser.role.toUpperCase();
       roleBadge.className = "user-role " + (currentUser.role === 'admin' ? 'admin' : '');
     }
@@ -1701,7 +1698,7 @@
         user: currentUser?.email || 'system',
         action,
         details,
-        ip: 'local' // In production, capture real IP
+        ip: 'local'
       };
       state.logs.unshift(log);
       if (state.logs.length > 100) state.logs = state.logs.slice(0, 100);
@@ -1711,7 +1708,6 @@
     // ---------- Data Management ----------
     function saveState() {
       if (!isAdmin() && state.users.length > 1) {
-        // Users can't modify user list
         const originalUsers = loadState(true)?.users || [];
         state.users = originalUsers;
       }
@@ -1724,7 +1720,9 @@
       try {
         const decoded = Crypto.decode(data);
         if (raw) return decoded;
-        state = { ...state, ...decoded };
+        if (decoded) {
+          state = { ...state, ...decoded };
+        }
         return state;
       } catch(e) {
         return null;
@@ -1733,9 +1731,9 @@
 
     function initData() {
       const existing = loadState(true);
-      if (!existing) {
-        // Create default admin
-        state.users.push({
+      if (!existing || !existing.users || existing.users.length === 0) {
+        // Create default admin if no data exists
+        state.users = [{
           id: uid("user"),
           name: "Administrator",
           email: "admin@exmind.id",
@@ -1744,32 +1742,37 @@
           status: "active",
           createdAt: Date.now(),
           permissions: ["all"]
-        });
+        }];
         saveState();
         logActivity("System initialized with default admin");
+        console.log("Default admin created: admin@exmind.id / admin123");
       } else {
         state = existing;
       }
     }
 
     // ---------- Helpers ----------
-    const $ = (sel, root=document) => root.querySelector(sel);
-    const $$ = (sel, root=document) => Array.from(root.querySelectorAll(sel));
+    function $(sel, root=document) { return root.querySelector(sel); }
+    function $$(sel, root=document) { return Array.from(root.querySelectorAll(sel)); }
 
     const uid = (p="id") => `${p}_${Math.random().toString(16).slice(2)}_${Date.now().toString(16)}`;
+    
     const fmtIDR = (n) => {
       n = Number(n || 0);
       return new Intl.NumberFormat("id-ID", { style:"currency", currency:"IDR", maximumFractionDigits:0 }).format(n);
     };
+    
     const fmtDate = (ts) => {
       if(!ts) return "—";
       const d = new Date(ts);
       return d.toLocaleDateString("id-ID", { year:"numeric", month:"short", day:"2-digit" });
     };
+    
     const todayKey = () => {
       const d = new Date();
       return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
     };
+    
     const dateKey = (ts) => {
       const d = new Date(ts);
       return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
@@ -1937,6 +1940,7 @@
     const modal = $("#modal");
     const modalTitle = $("#modalTitle");
     const modalBody = $("#modalBody");
+    
     $("#modalClose").onclick = closeModal;
     modal.addEventListener("click", (e)=>{
       if(e.target === modal) closeModal();
@@ -1950,6 +1954,7 @@
       modalBody.innerHTML = html;
       modal.classList.add("open");
     }
+    
     function closeModal(){
       modal.classList.remove("open");
       modalBody.innerHTML = "";
@@ -2041,15 +2046,21 @@
       const host = $("#hotList");
       const q = currentQuery();
 
-      const hotLeads = state.leads
+      let hotLeads = state.leads
         .filter(l => filterMatch(l,q))
         .filter(l => isHot(l))
         .slice(0, 6);
 
-      const hotDeals = state.deals
+      let hotDeals = state.deals
         .filter(d => filterMatch(d,q))
         .filter(d => isHot(d))
         .slice(0, 6);
+
+      // Filter by ownership for non-admin
+      if (!isAdmin()) {
+        hotLeads = hotLeads.filter(l => l.owner === currentUser?.name || l.owner === currentUser?.email);
+        hotDeals = hotDeals.filter(d => d.owner === currentUser?.name || d.owner === currentUser?.email);
+      }
 
       const items = [
         ...hotDeals.map(d => ({ type:"deal", obj:d })),
@@ -2102,16 +2113,22 @@
       const host = $("#suggestions");
       const q = currentQuery();
 
-      const dueTodayDeals = state.deals
+      let dueTodayDeals = state.deals
         .filter(d => filterMatch(d,q))
         .filter(d => d.followUpAt && dateKey(d.followUpAt) === todayKey())
         .slice(0, 4);
 
-      const wonNoInvoice = state.deals
+      let wonNoInvoice = state.deals
         .filter(d => filterMatch(d,q))
         .filter(d => d.stageId === "won")
         .filter(d => !state.invoices.some(inv => inv.dealId === d.id))
         .slice(0, 4);
+
+      // Filter by ownership for non-admin
+      if (!isAdmin()) {
+        dueTodayDeals = dueTodayDeals.filter(d => d.owner === currentUser?.name || d.owner === currentUser?.email);
+        wonNoInvoice = wonNoInvoice.filter(d => d.owner === currentUser?.name || d.owner === currentUser?.email);
+      }
 
       const parts = [];
 
@@ -2185,7 +2202,7 @@
       host.innerHTML = list.map(l => {
         const st = l.status || "New";
         const tagCls = st === "Qualified" ? "ok" : st === "Contacted" ? "warn" : st === "Lost" ? "bad" : "info";
-        const canEdit = isAdmin() || l.owner === currentUser?.name || l.owner === currentUser?.email;
+        const canEdit = isAdmin() || l.owner === currentUser?.name || l.owner === currentUser?.email || l.createdBy === currentUser?.email;
 
         return `
           <tr>
@@ -2296,10 +2313,10 @@
       const tag = st === "won" ? "ok" : st === "lost" ? "bad" : st === "proposal" ? "warn" : "info";
       const due = d.followUpAt ? fmtDate(d.followUpAt) : "—";
       const hot = isHot(d);
-      const canEdit = isAdmin() || d.owner === currentUser?.name || d.owner === currentUser?.email;
+      const canEdit = isAdmin() || d.owner === currentUser?.name || d.owner === currentUser?.email || d.createdBy === currentUser?.email;
 
       return `
-        <div class="deal" draggable="${canEdit}" data-id="${escapeHtml(d.id)}" onclick="window.__openDeal('${escapeHtml(d.id)}')">
+        <div class="deal" draggable="${canEdit ? 'true' : 'false'}" data-id="${escapeHtml(d.id)}" onclick="window.__openDeal('${escapeHtml(d.id)}')">
           <div class="top">
             <div style="min-width:0">
               <div class="name">${escapeHtml(d.title || "Deal")}</div>
@@ -2542,7 +2559,6 @@
       const l = state.leads.find(x => x.id === id);
       if(!l) return;
       
-      // Check ownership
       if (!isAdmin() && l.owner !== currentUser?.name && l.owner !== currentUser?.email && l.createdBy !== currentUser?.email) {
         toast("Anda hanya dapat mengedit lead milik Anda", "warn", "Akses Ditolak");
         return;
@@ -3084,7 +3100,7 @@
     function modalDealDetail(deal){
       const st = stageById(deal.stageId)?.name || deal.stageId;
       const due = deal.followUpAt ? fmtDate(deal.followUpAt) : "—";
-      const canEdit = isAdmin() || deal.owner === currentUser?.name || deal.owner === currentUser?.email;
+      const canEdit = isAdmin() || deal.owner === currentUser?.name || deal.owner === currentUser?.email || deal.createdBy === currentUser?.email;
 
       const waTemplates = [
         { name:"Follow-up 1", text:`Halo ${deal.name || ""}, saya dari ${state.meta.company}. Saya follow-up terkait ${deal.title}. Apakah bisa kita lanjutkan pembahasannya hari ini?` },
@@ -3501,9 +3517,14 @@
         return;
       }
       
-      const won = state.deals
+      let won = state.deals
         .filter(d => d.stageId === "won")
         .filter(d => !state.invoices.some(i => i.dealId === d.id));
+
+      // Filter by ownership for non-admin
+      if (!isAdmin()) {
+        won = won.filter(d => d.owner === currentUser?.name || d.owner === currentUser?.email);
+      }
 
       if(won.length === 0){
         toast("Tidak ada deal Won yang belum dibuat invoice.", "info", "Won → Invoice");
@@ -3567,7 +3588,7 @@
         exportData.leads = state.leads.filter(l => l.owner === currentUser?.name || l.owner === currentUser?.email);
         exportData.deals = state.deals.filter(d => d.owner === currentUser?.name || d.owner === currentUser?.email);
         exportData.invoices = state.invoices.filter(i => exportData.deals.some(d => d.id === i.dealId));
-        exportData.users = []; // Don't export users for non-admin
+        exportData.users = [];
         exportData.logs = [];
       }
       
@@ -3585,146 +3606,231 @@
       toast("Export JSON berhasil.", "good", "Export");
     }
 
-    // ---------- Events ----------
-    // Auth tabs
-    $$(".auth-tab").forEach(tab => {
-      tab.addEventListener("click", () => {
-        $$(".auth-tab").forEach(t => t.classList.remove("active"));
-        tab.classList.add("active");
-        const isRegister = tab.dataset.tab === "register";
-        $("#nameField").style.display = isRegister ? "block" : "none";
-        $("#licenseField").style.display = isRegister ? "block" : "none";
-        $("#authBtn").textContent = isRegister ? "Daftar" : "Masuk";
+    // ---------- Event Listeners ----------
+    // Auth tabs - FIXED: Using getElementById for reliability
+    const tabLogin = document.getElementById("tabLogin");
+    const tabRegister = document.getElementById("tabRegister");
+    
+    if (tabLogin && tabRegister) {
+      tabLogin.addEventListener("click", function() {
+        tabLogin.classList.add("active");
+        tabRegister.classList.remove("active");
+        document.getElementById("nameField").style.display = "none";
+        document.getElementById("licenseField").style.display = "none";
+        document.getElementById("authBtn").textContent = "Masuk";
+      });
+
+      tabRegister.addEventListener("click", function() {
+        tabRegister.classList.add("active");
+        tabLogin.classList.remove("active");
+        document.getElementById("nameField").style.display = "flex";
+        document.getElementById("licenseField").style.display = "flex";
+        document.getElementById("authBtn").textContent = "Daftar";
+      });
+    }
+
+    // Auth form submission - FIXED
+    const authForm = document.getElementById("authForm");
+    if (authForm) {
+      authForm.addEventListener("submit", function(e) {
+        e.preventDefault();
+        
+        const isRegister = tabRegister.classList.contains("active");
+        const email = document.getElementById("authEmail").value.trim();
+        const password = document.getElementById("authPassword").value;
+        
+        if (isRegister) {
+          const name = document.getElementById("authName").value.trim();
+          const license = document.getElementById("authLicense").value.trim();
+          if (!name) {
+            toast("Nama wajib diisi", "warn", "Validasi");
+            return;
+          }
+          register(name, email, password, license);
+        } else {
+          login(email, password);
+        }
+      });
+    }
+
+    // Navigation
+    $$(".navbtn").forEach(btn => {
+      btn.addEventListener("click", () => setView(btn.dataset.view));
+    });
+
+    // Chips
+    $$(".chip").forEach(ch => {
+      ch.addEventListener("click", () => {
+        state.ui.filter = ch.dataset.filter;
+        saveState();
+        render();
       });
     });
 
-    // Auth form
-    $("#authForm").addEventListener("submit", (e) => {
-      e.preventDefault();
-      const isRegister = $(".auth-tab.active").dataset.tab === "register";
-      const email = $("#authEmail").value.trim();
-      const password = $("#authPassword").value;
-      
-      if (isRegister) {
-        const name = $("#authName").value.trim();
-        const license = $("#authLicense").value.trim();
-        if (!name) {
-          toast("Nama wajib diisi", "warn", "Validasi");
+    // Search
+    const searchInput = document.getElementById("q");
+    if (searchInput) {
+      searchInput.addEventListener("input", render);
+    }
+
+    // Top actions
+    const btnNewLead = document.getElementById("btnNewLead");
+    const btnNewDeal = document.getElementById("btnNewDeal");
+    const btnExport = document.getElementById("btnExport");
+    
+    if (btnNewLead) btnNewLead.onclick = () => modalLeadForm(null);
+    if (btnNewDeal) btnNewDeal.onclick = () => modalDealForm(null);
+    if (btnExport) btnExport.onclick = exportJSON;
+
+    // Sidebar actions
+    const btnSeed = document.getElementById("btnSeed");
+    const btnReset = document.getElementById("btnReset");
+    
+    if (btnSeed) btnSeed.onclick = seed;
+    if (btnReset) btnReset.onclick = resetAll;
+
+    // Leads view actions
+    const btnImportCSV = document.getElementById("btnImportCSV");
+    const btnAddFromDeal = document.getElementById("btnAddFromDeal");
+    const csvFile = document.getElementById("csvFile");
+    
+    if (btnImportCSV) {
+      btnImportCSV.onclick = () => {
+        if (csvFile) csvFile.click();
+      };
+    }
+    
+    if (csvFile) {
+      csvFile.addEventListener("change", async (e) => {
+        const file = e.target.files?.[0];
+        if(!file) return;
+        const text = await file.text();
+        importCSV(text);
+        e.target.value = "";
+      });
+    }
+
+    if (btnAddFromDeal) {
+      btnAddFromDeal.onclick = () => {
+        const d = state.deals[0];
+        if(!d){
+          toast("Belum ada deal.", "info", "Leads");
           return;
         }
-        register(name, email, password, license);
-      } else {
-        login(email, password);
-      }
-    });
+        addLead({
+          name: d.name,
+          company: d.company,
+          phone: d.phone,
+          source: "Other",
+          status: "New",
+          owner: d.owner,
+          notes: `Auto dari deal: ${d.title}`
+        });
+      };
+    }
 
-    // nav
-    $$(".navbtn").forEach(btn => btn.addEventListener("click", ()=> setView(btn.dataset.view)));
+    // Pipeline actions
+    const btnStageConfig = document.getElementById("btnStageConfig");
+    const btnWonToInvoice = document.getElementById("btnWonToInvoice");
+    
+    if (btnStageConfig) btnStageConfig.onclick = modalStageConfig;
+    if (btnWonToInvoice) btnWonToInvoice.onclick = wonToInvoice;
 
-    // chips
-    $$(".chip").forEach(ch => ch.addEventListener("click", ()=>{
-      state.ui.filter = ch.dataset.filter;
-      saveState();
-      render();
-    }));
+    // Invoices actions
+    const btnNewInvoice = document.getElementById("btnNewInvoice");
+    const btnMarkAllPending = document.getElementById("btnMarkAllPending");
+    
+    if (btnNewInvoice) btnNewInvoice.onclick = () => modalInvoiceForm(null);
+    
+    if (btnMarkAllPending) {
+      btnMarkAllPending.onclick = () => {
+        if (!checkPermission('edit')) {
+          toast("Anda tidak memiliki izin untuk ini", "warn", "Akses Ditolak");
+          return;
+        }
+        state.invoices.forEach(i => {
+          if(i.status === "unpaid") i.status = "pending";
+        });
+        logActivity("All unpaid invoices marked as pending");
+        toast("Invoice unpaid ditandai pending.", "info", "Invoices");
+        saveState();
+        render();
+      };
+    }
 
-    // search
-    $("#q").addEventListener("input", ()=>{
-      render();
-    });
+    // Dashboard quick actions
+    const btnQuickFollow = document.getElementById("btnQuickFollow");
+    const btnQuickInvoice = document.getElementById("btnQuickInvoice");
+    
+    if (btnQuickFollow) btnQuickFollow.onclick = () => setView("pipeline");
+    if (btnQuickInvoice) btnQuickInvoice.onclick = wonToInvoice;
 
-    // top actions
-    $("#btnNewLead").onclick = () => modalLeadForm(null);
-    $("#btnNewDeal").onclick = () => modalDealForm(null);
-    $("#btnExport").onclick = exportJSON;
+    // Invoice preview actions
+    const btnPayExmindPay = document.getElementById("btnPayExmindPay");
+    const btnCopyPayLink = document.getElementById("btnCopyPayLink");
+    const btnMarkPaid = document.getElementById("btnMarkPaid");
+    const btnDeleteInvoice = document.getElementById("btnDeleteInvoice");
 
-    // sidebar actions
-    $("#btnSeed").onclick = seed;
-    $("#btnReset").onclick = resetAll;
+    if (btnPayExmindPay) {
+      btnPayExmindPay.onclick = () => {
+        const inv = state.invoices.find(i => i.id === state.ui.selectedInvoiceId);
+        if(!inv) return;
+        window.open(inv.exmindpayLink, "_blank", "noopener,noreferrer");
+        logActivity(`ExmindPay link opened for invoice: ${inv.number}`);
+        toast("Link ExmindPay dibuka.", "good", "ExmindPay");
+      };
+    }
 
-    // leads view actions
-    $("#btnImportCSV").onclick = () => $("#csvFile").click();
-    $("#csvFile").addEventListener("change", async (e)=>{
-      const file = e.target.files?.[0];
-      if(!file) return;
-      const text = await file.text();
-      importCSV(text);
-      e.target.value = "";
-    });
+    if (btnCopyPayLink) {
+      btnCopyPayLink.onclick = () => {
+        const inv = state.invoices.find(i => i.id === state.ui.selectedInvoiceId);
+        if(!inv) return;
+        navigator.clipboard.writeText(inv.exmindpayLink || "");
+        logActivity(`Payment link copied for invoice: ${inv.number}`);
+        toast("Link Exmind Pay dicopy.", "good", "Copy");
+      };
+    }
 
-    $("#btnAddFromDeal").onclick = () => {
-      const d = state.deals[0];
-      if(!d){
-        toast("Belum ada deal.", "info", "Leads");
-        return;
-      }
-      addLead({
-        name: d.name,
-        company: d.company,
-        phone: d.phone,
-        source: "Other",
-        status: "New",
-        owner: d.owner,
-        notes: `Auto dari deal: ${d.title}`
-      });
-    };
+    if (btnMarkPaid) {
+      btnMarkPaid.onclick = () => {
+        if (!checkPermission('edit')) {
+          toast("Anda tidak memiliki izin untuk ini", "warn", "Akses Ditolak");
+          return;
+        }
+        const inv = state.invoices.find(i => i.id === state.ui.selectedInvoiceId);
+        if(!inv) return;
+        inv.status = "paid";
+        logActivity(`Invoice marked as paid: ${inv.number}`);
+        toast("Invoice ditandai PAID.", "good", "Paid");
+        saveState();
+        render();
+      };
+    }
 
-    // pipeline actions
-    $("#btnStageConfig").onclick = modalStageConfig;
-    $("#btnWonToInvoice").onclick = wonToInvoice;
-
-    // invoices actions
-    $("#btnNewInvoice").onclick = () => modalInvoiceForm(null);
-    $("#btnMarkAllPending").onclick = () => {
-      if (!checkPermission('edit')) {
-        toast("Anda tidak memiliki izin untuk ini", "warn", "Akses Ditolak");
-        return;
-      }
-      state.invoices.forEach(i => {
-        if(i.status === "unpaid") i.status = "pending";
-      });
-      logActivity("All unpaid invoices marked as pending");
-      toast("Invoice unpaid ditandai pending.", "info", "Invoices");
-      saveState();
-      render();
-    };
-
-    // dashboard quick actions
-    $("#btnQuickFollow").onclick = () => setView("pipeline");
-    $("#btnQuickInvoice").onclick = wonToInvoice;
-
-    // invoice preview actions
-    $("#btnPayExmindPay").onclick = () => {
-      const inv = state.invoices.find(i => i.id === state.ui.selectedInvoiceId);
-      if(!inv) return;
-      window.open(inv.exmindpayLink, "_blank", "noopener,noreferrer");
-      logActivity(`ExmindPay link opened for invoice: ${inv.number}`);
-      toast("Link ExmindPay dibuka.", "good", "ExmindPay");
-    };
-    $("#btnCopyPayLink").onclick = () => copyPayLink(state.ui.selectedInvoiceId);
-    $("#btnMarkPaid").onclick = () => markPaid(state.ui.selectedInvoiceId);
-    $("#btnDeleteInvoice").onclick = () => {
-      const id = state.ui.selectedInvoiceId;
-      if(!id) return;
-      if(confirm("Hapus invoice ini?")){
-        deleteInvoice(id);
-      }
-    };
+    if (btnDeleteInvoice) {
+      btnDeleteInvoice.onclick = () => {
+        const id = state.ui.selectedInvoiceId;
+        if(!id) return;
+        if(confirm("Hapus invoice ini?")){
+          deleteInvoice(id);
+        }
+      };
+    }
 
     // ---------- Global functions for inline onclick ----------
     window.__closeModal = closeModal;
     window.__toast = toast;
-
-    window.__jump = (view) => setView(view);
+    window.__jump = setView;
     window.__openTemplates = modalTemplates;
 
     window.__editLead = (id) => {
       const l = state.leads.find(x => x.id === id);
       if(l) modalLeadForm(l);
     };
-    window.__deleteLead = (id) => deleteLead(id);
-    window.__leadToDeal = (id) => leadToDeal(id);
-
+    
+    window.__deleteLead = deleteLead;
+    window.__leadToDeal = leadToDeal;
+    
     window.__openDeal = (id) => {
       const d = state.deals.find(x => x.id === id);
       if(d) modalDealDetail(d);
@@ -3742,9 +3848,8 @@
       }
     };
 
-    window.__sendWATemplate = (dealId, name) => sendWATemplate(dealId, name);
-
-    window.__dealToInvoice = (dealId) => dealToInvoice(dealId);
+    window.__sendWATemplate = sendWATemplate;
+    window.__dealToInvoice = dealToInvoice;
     window.__wonToInvoice = wonToInvoice;
 
     window.__selectInvoice = (id) => {
@@ -3758,24 +3863,18 @@
       if(inv) modalInvoiceForm(inv);
     };
 
-    window.__copyPayLink = (id) => copyPayLink(id);
-    window.__markPaid = (id) => markPaid(id);
-
-    // ---------- Invoice quick ----------
-    function copyPayLink(id){
+    window.__copyPayLink = (id) => {
       const inv = state.invoices.find(i => i.id === id);
       if(!inv) return;
       navigator.clipboard.writeText(inv.exmindpayLink || "");
-      logActivity(`Payment link copied for invoice: ${inv.number}`);
       toast("Link Exmind Pay dicopy.", "good", "Copy");
-    }
-
-    function markPaid(id){
+    };
+    
+    window.__markPaid = (id) => {
       if (!checkPermission('edit')) {
         toast("Anda tidak memiliki izin untuk ini", "warn", "Akses Ditolak");
         return;
       }
-      
       const inv = state.invoices.find(i => i.id === id);
       if(!inv) return;
       inv.status = "paid";
@@ -3783,16 +3882,16 @@
       toast("Invoice ditandai PAID.", "good", "Paid");
       saveState();
       render();
-    }
+    };
 
     // ---------- Init ----------
-    initData();
+    // Initialize the app
     initAuth();
 
-    // if no data, show toast hint
-    if(state.leads.length === 0 && state.deals.length === 0 && currentUser){
-      toast("Klik ✨ Seed Demo untuk isi data contoh, atau mulai input lead/deal.", "info", "Exmind CRM Pro");
-    }
+    // Debug info
+    console.log("Exmind CRM Pro initialized");
+    console.log("Default admin: admin@exmind.id / admin123");
+    console.log("License key for admin:", LICENSE_KEY);
   </script>
 </body>
 </html>
